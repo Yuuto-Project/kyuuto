@@ -19,4 +19,4 @@ jobs:
               run: ./gradlew dependencies
 
             - name: run linter
-              run: ./gradlew dependencies
+              run: ./gradlew lintKotlin
