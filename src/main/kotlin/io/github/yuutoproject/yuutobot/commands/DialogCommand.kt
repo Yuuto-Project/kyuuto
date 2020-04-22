@@ -24,6 +24,7 @@ import java.io.IOException
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.internal.utils.IOUtil
 import okhttp3.*
+import okhttp3.Callback as OkHttp3Callback
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 
@@ -45,7 +46,7 @@ class DialogCommand : AbstractCommand("dialog", CommandCategory.INFO, "does some
             .post(body)
             .build()
 
-        moveThisToAStorageLocation.newCall(request).enqueue(object : Callback {
+        moveThisToAStorageLocation.newCall(request).enqueue(object : OkHttp3Callback {
             override fun onFailure(call: Call, e: IOException) {
                 TODO("Not yet implemented")
             }

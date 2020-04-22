@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory
 class Listener : ListenerAdapter() {
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    private val commands = mutableMapOf<String, AbstractCommand>()
-    private val aliases = mutableMapOf<String, String>()
+    private val commands = hashMapOf<String, AbstractCommand>()
+    private val aliases = hashMapOf<String, String>()
 
     init {
         loadCommands()
