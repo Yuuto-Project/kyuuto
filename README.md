@@ -26,6 +26,7 @@ The first command clones over HTTPS, the second one over SSH, thus requiring you
 - [Project Setup](#project-setup)
   - [Bot application](#bot-application)
   - [Development](#development)
+  - [Intents](#intents)
 - [Development Server](#development-server)
   - [Bots](#bots)
   - [Channels](#channels)
@@ -52,6 +53,16 @@ Once you have cloned the repository on your local machine, make sure to set up y
 ### Development
 
 Yuuto bot has its own development server, you can join it by clicking [here](https://discord.gg/fPFbV8G). The server is the official means of discussion and collaboration on the bot, together with GitHub's collaboration tools.
+
+### Intents
+
+Because Yuuto is using the `GUILD_MEMBERS` gateway intent from discord you must enable this in your developer portal.
+
+To enable this you have to follow the following steps:
+1. Go to https://discordapp.com/developers/applications and select the application that you want to run the code on.
+2. Click on the application and select "Bot" on the left side.
+3. When you are on the bot page scroll down to "Privileged Gateway Intents" and enable "SERVER MEMBERS INTENT".
+4. Press the save button and you are good to go to run Yuuto.
 
 ## Development Server
 
