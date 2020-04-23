@@ -57,6 +57,11 @@ There are a couple of important gradle commands that you need to know as well, t
 - `./gradlew formatKotlin` - Fixes code styling (can be done with ctrl-alt-l in intellij as well)
 - `./gradlew build` - Builds the project into a jar
 
+If you are setting up the project for the first time you will need to run `./gradlew idea`.
+This command will make sure you have all the proper files for intellij to function correctly. Alternatively you can also run `./gradlew openIdea` to open your intellij installation from the command line directly.
+
+Note: If you are a Windows user you will need to use `gradlew.bat` instead of `./gradlew`
+
 ### Bot application
 
 The bot is developed using Kotlin, for JDK 13.

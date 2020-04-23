@@ -19,14 +19,24 @@
 package io.github.yuutoproject.yuutobot
 
 import io.github.cdimascio.dotenv.Dotenv
+import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.cache.CacheFlag.*
 import org.slf4j.LoggerFactory
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class Yuuto {
     private val logger = LoggerFactory.getLogger(this.javaClass)
+    private val jda: JDA
+    private val gameService = Executors.newSingleThreadScheduledExecutor {
+        val t = Thread(it, "Game-Persistence-Thread")
+        t.isDaemon = true
+
+        return@newSingleThreadScheduledExecutor t
+    }
 
     init {
         // Print something with the logger
@@ -34,7 +44,7 @@ class Yuuto {
         logger.info("Booting YuutoKt")
         logger.info("Prefix is {}", config["PREFIX"])
 
-        JDABuilder.createDefault(
+        jda = JDABuilder.createDefault(
             config["TOKEN"],
             GatewayIntent.GUILD_MEMBERS,
             GatewayIntent.GUILD_MESSAGES,
@@ -45,6 +55,15 @@ class Yuuto {
             .setActivity(Activity.playing("volleyball"))
             .setBulkDeleteSplittingEnabled(false)
             .build()
+
+        // TODO: Does not seem to be requried with JDA
+//        this.startGameTimer()
+    }
+
+    private fun startGameTimer () {
+        gameService.scheduleAtFixedRate({
+            jda.presence.activity = Activity.playing("volleyball")
+        },1, 1, TimeUnit.DAYS)
     }
 
     companion object {
