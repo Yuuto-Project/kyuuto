@@ -19,14 +19,14 @@
 package io.github.yuutoproject.yuutobot
 
 import io.github.cdimascio.dotenv.Dotenv
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.cache.CacheFlag.*
 import org.slf4j.LoggerFactory
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 class Yuuto {
     private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -60,10 +60,10 @@ class Yuuto {
 //        this.startGameTimer()
     }
 
-    private fun startGameTimer () {
+    private fun startGameTimer() {
         gameService.scheduleAtFixedRate({
             jda.presence.activity = Activity.playing("volleyball")
-        },1, 1, TimeUnit.DAYS)
+        }, 1, 1, TimeUnit.DAYS)
     }
 
     companion object {
