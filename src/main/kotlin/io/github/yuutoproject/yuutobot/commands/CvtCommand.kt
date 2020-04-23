@@ -18,12 +18,20 @@
 
 package io.github.yuutoproject.yuutobot.commands
 
+import io.github.yuutoproject.yuutobot.Yuuto
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import kotlin.math.pow
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
-class CvtCommand : AbstractCommand("cvt", CommandCategory.UTIL, "Helps converting stuff", "<item 1> <item 2>") {
+class CvtCommand : AbstractCommand(
+    "cvt",
+    CommandCategory.UTIL,
+    "Helps converting stuff",
+    "Run `cvt <target unit> <value><origin unit>` to convert `<value>` from `<origin unit>` to `<target unit>`."
+) {
+    override val aliases = arrayOf("convert")
+
     private val inputPattern = "(-?[\\d.]+)(\\D{1,2})".toRegex()
     private val lengths = arrayOf("mm", "cm", "m", "pc", "pt", "in", "ft", "px")
     private val temps = arrayOf("c", "f", "k")
@@ -41,7 +49,11 @@ class CvtCommand : AbstractCommand("cvt", CommandCategory.UTIL, "Helps convertin
         }
 
         if (args.size < 2) {
-            // error
+            channel.sendMessage(
+                "Temperature units to convert to are `${temps.joinToString("`, `")}` from those values.\n" +
+                    "Height units to convert to are `${lengths.joinToString("`, `")}` from those same values as well.\n" +
+                    "The syntax is `${Yuuto.config["PREFIX"]}cvt <unit-to-convert-to> <value>`"
+            ).queue()
             return
         }
 
@@ -91,8 +103,10 @@ class CvtCommand : AbstractCommand("cvt", CommandCategory.UTIL, "Helps convertin
 
         val aboutPrecise = if (sourceUnit == targetUnit) "precisely" else "about"
 
-        channel.sendMessage("<:LeeCute:701312766115315733> According to my calculations, " +
-            "`$sourceDouble${sourceUnit.displayUnit()}` is $aboutPrecise `$converted${targetUnit.displayUnit()}`")
+        channel.sendMessage(
+            "<:LeeCute:701312766115315733> According to my calculations, " +
+                "`$sourceDouble${sourceUnit.displayUnit()}` is $aboutPrecise `$converted${targetUnit.displayUnit()}`"
+        )
             .queue()
     }
 

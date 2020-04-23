@@ -26,6 +26,9 @@ abstract class AbstractCommand(
     val description: String,
     val usage: String
 ) {
+    // The open key word allows for children to override the property
+    open val aliases = emptyArray<String>()
+
     abstract fun run(args: MutableList<String>, event: GuildMessageReceivedEvent)
 
     override fun toString(): String {

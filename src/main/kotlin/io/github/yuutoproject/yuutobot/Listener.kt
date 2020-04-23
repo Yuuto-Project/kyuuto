@@ -74,13 +74,17 @@ class Listener : ListenerAdapter() {
             return
         }
 
+        val commandName = command.name
+
+        // Run the commands asynchronously so they don't block the event thread
         GlobalScope.launch {
-            logger.info("Running command $invoke in ${event.guild} with $args")
+            logger.info("Running command $commandName in ${event.guild} with $args")
 
             try {
                 command.run(args, event)
             } catch (e: Throwable) {
-                logger.error("Command $invoke failed in ${event.guild} with $args", e)
+                event.channel.sendMessage("${author.asMention}, there was an error trying to execute that command!").queue()
+                logger.error("Command $commandName failed in ${event.guild} with $args", e)
             }
         }
     }
@@ -94,7 +98,10 @@ class Listener : ListenerAdapter() {
                 val command = it.getDeclaredConstructor().newInstance()
 
                 commands[command.name] = command
-                // TODO: Aliases
+
+                command.aliases.forEach { alias ->
+                    aliases[alias] = command.name
+                }
             }
     }
 }
