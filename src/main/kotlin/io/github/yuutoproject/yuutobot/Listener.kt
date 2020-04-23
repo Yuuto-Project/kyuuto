@@ -20,6 +20,8 @@ package io.github.yuutoproject.yuutobot
 
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import java.lang.reflect.Modifier
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
@@ -72,7 +74,15 @@ class Listener : ListenerAdapter() {
             return
         }
 
-        command.run(args, event)
+        GlobalScope.launch {
+            logger.info("Running command $invoke in ${event.guild} with $args")
+
+            try {
+                command.run(args, event)
+            } catch (e: Throwable) {
+                logger.error("Command $invoke failed in ${event.guild} with $args", e)
+            }
+        }
     }
 
     private fun loadCommands() {

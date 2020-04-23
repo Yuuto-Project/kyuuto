@@ -45,6 +45,18 @@ The first command clones over HTTPS, the second one over SSH, thus requiring you
 
 Kyuuto bot is written in Kotlin and the repository hosted on GitHub, as it's the most popular platform to host Open Source project repositories. The decision for Kotlin came from the initial JS dev team's wish for a more robust platform than Node.js.
 
+To get started setting up the project you will need the following things:
+1. Intellij IDEA (The free version supports everything we need)
+2. Java 13, added to path and JAVA_HOME env var set, adopt openjdk hotspot recommended
+3. A bit of knowledge about gradle
+4. Knowledge about kotlin
+
+There are a couple of important gradle commands that you need to know as well, these commands are:
+- `./gradlew run` - Runs the project
+- `./gradlew lintKotlin` - Runs the linter
+- `./gradlew formatKotlin` - Fixes code styling (can be done with ctrl-alt-l in intellij as well)
+- `./gradlew build` - Builds the project into a jar
+
 ### Bot application
 
 The bot is developed using Kotlin, for JDK 13.
