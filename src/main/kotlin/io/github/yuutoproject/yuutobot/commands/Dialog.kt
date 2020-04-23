@@ -29,7 +29,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 
 // TODO: get arch to implement the actual command
-class DialogCommand : AbstractCommand("dialog", CommandCategory.INFO, "does something", "[bg] <char> <text>") {
+class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "does something", "[bg] <char> <text>") {
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
         val moveThisToAStorageLocation = OkHttpClient()
 

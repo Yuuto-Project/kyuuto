@@ -22,7 +22,7 @@ import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
-class PingCommand : AbstractCommand("ping", CommandCategory.INFO, "Shows the ping", "ping") {
+class Ping : AbstractCommand("ping", CommandCategory.INFO, "Shows the ping", "ping") {
     private val pings = arrayOf("Ping", "Pong", "Pang", "Peng")
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {

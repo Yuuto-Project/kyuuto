@@ -24,7 +24,7 @@ import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import kotlin.math.pow
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
-class CvtCommand : AbstractCommand(
+class Cvt : AbstractCommand(
     "cvt",
     CommandCategory.UTIL,
     "Helps converting stuff",
