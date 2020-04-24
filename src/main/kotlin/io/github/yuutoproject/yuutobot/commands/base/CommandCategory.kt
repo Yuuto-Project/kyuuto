@@ -20,6 +20,7 @@ package io.github.yuutoproject.yuutobot.commands.base
 
 enum class CommandCategory {
     INFO,
+    UTIL,
     OTHER_CATEGORY;
 
     // This is an instance prop

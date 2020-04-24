@@ -20,12 +20,28 @@ package io.github.yuutoproject.yuutobot.commands.base
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
+/**
+ * Base class for all commands
+ *
+ * The following properties have to be filled
+ * - [name]: The name of the command
+ * - [category]: The category of the command
+ * - [description]: Oneliner that shows in "y!help list"
+ * - [usage]: Extended help message for the command with information on how to use it
+ *
+ * Commands can add aliases by overriding the [aliases] prop
+ */
 abstract class AbstractCommand(
     val name: String,
     val category: CommandCategory,
     val description: String,
     val usage: String
 ) {
+    /**
+     * List of aliases for the command, is empty by default
+     */
+    open val aliases = emptyArray<String>()
+
     abstract fun run(args: MutableList<String>, event: GuildMessageReceivedEvent)
 
     override fun toString(): String {

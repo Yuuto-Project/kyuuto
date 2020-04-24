@@ -19,12 +19,14 @@
 import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
 
 plugins {
+    idea
     kotlin("jvm") version "1.3.72"
     id("org.jmailen.kotlinter") version "2.3.2"
+    id("com.github.johnrengelman.shadow") version "5.2.0"
 }
 
-group = "io.github.yuuto-project"
-version = "4.0-SNAPSHOT"
+project.group = "io.github.yuutoproject"
+project.version = "4.0-alpha"
 
 repositories {
     jcenter()
@@ -33,8 +35,9 @@ repositories {
 // JDA and logback-classic are written in java
 // But kotlin has terrific java interop
 dependencies {
-    // Kotlin STD
+    // Kotlin STD and other kotlin stuff
     implementation(kotlin("stdlib-jdk8"))
+    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.3.5")
     // The discord lib
     implementation(group = "net.dv8tion", name = "JDA", version = "4.1.1_137")
     // dotenv support
@@ -49,16 +52,33 @@ dependencies {
 
 tasks {
     compileKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = "11"
     }
     compileTestKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = "11"
     }
     wrapper {
         gradleVersion = "6.3"
         distributionType = DistributionType.ALL
     }
+    shadowJar {
+        archiveClassifier.set("shadow")
+
+        manifest {
+            attributes["Description"] = "Kyuuto is cute tho"
+        }
+    }
 }
+
+// Force a minimum of java 11
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+// TODO: that
+/*application {
+    mainClassName = "${project.group}.yuutobot.Yuuto"
+}*/
 
 kotlinter {
     ignoreFailures = false

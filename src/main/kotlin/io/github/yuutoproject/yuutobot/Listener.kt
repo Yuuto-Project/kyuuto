@@ -20,6 +20,8 @@ package io.github.yuutoproject.yuutobot
 
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import java.lang.reflect.Modifier
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
@@ -72,7 +74,19 @@ class Listener : ListenerAdapter() {
             return
         }
 
-        command.run(args, event)
+        val commandName = command.name
+
+        // Run the commands asynchronously so they don't block the event thread
+        GlobalScope.launch {
+            logger.info("Running command $commandName in ${event.guild} with $args")
+
+            try {
+                command.run(args, event)
+            } catch (e: Throwable) {
+                event.channel.sendMessage("${author.asMention}, there was an error trying to execute that command!").queue()
+                logger.error("Command $commandName failed in ${event.guild} with $args", e)
+            }
+        }
     }
 
     private fun loadCommands() {
@@ -84,7 +98,10 @@ class Listener : ListenerAdapter() {
                 val command = it.getDeclaredConstructor().newInstance()
 
                 commands[command.name] = command
-                // TODO: Aliases
+
+                command.aliases.forEach { alias ->
+                    aliases[alias] = command.name
+                }
             }
     }
 }
