@@ -115,7 +115,7 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an ima
         val text = args.joinToString(" ").replace("/[‘’]/g".toRegex(), "'")
 
         if (text.length > 140) {
-            event.channel.sendMessage("Sorry, the message limit is 120 characters <:hiroJey:692008426842226708>").queue()
+            event.channel.sendMessage("Sorry, the message limit is 140 characters <:hiroJey:692008426842226708>").queue()
             return
         }
 
