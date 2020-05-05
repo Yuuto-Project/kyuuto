@@ -29,7 +29,7 @@ import org.reflections.Reflections
 import org.slf4j.LoggerFactory
 
 class Listener : ListenerAdapter() {
-    private val logger = LoggerFactory.getLogger(this.javaClass)
+    private val     logger = LoggerFactory.getLogger(this.javaClass)
 
     private val commands = hashMapOf<String, AbstractCommand>()
     private val aliases = hashMapOf<String, String>()
