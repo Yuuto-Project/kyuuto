@@ -20,6 +20,7 @@ import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
 
 plugins {
     idea
+    application
     kotlin("jvm") version "1.3.72"
     id("org.jmailen.kotlinter") version "2.3.2"
     id("com.github.johnrengelman.shadow") version "5.2.0"
@@ -39,7 +40,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.3.5")
     // The discord lib
-    implementation(group = "net.dv8tion", name = "JDA", version = "4.1.1_137")
+    implementation(group = "net.dv8tion", name = "JDA", version = "4.1.1_142")
     // dotenv support
     implementation(group = "io.github.cdimascio", name = "java-dotenv", version = "5.1.3")
     // For logging
@@ -75,10 +76,10 @@ java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
 }
-// TODO: that
-/*application {
-    mainClassName = "${project.group}.yuutobot.Yuuto"
-}*/
+
+application {
+    mainClassName = "${project.group}.yuutobot.YuutoKt"
+}
 
 kotlinter {
     ignoreFailures = false
