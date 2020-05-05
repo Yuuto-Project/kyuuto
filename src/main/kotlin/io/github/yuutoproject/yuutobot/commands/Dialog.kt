@@ -95,12 +95,12 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "does something",
         }
 
         if (!backgrounds.contains(background)) {
-            event.channel.sendMessage("Sorry but I couldn't find $background as a location\nAvailable backgrounds are : $backgroundsString").queue()
+            event.channel.sendMessage("Sorry but I couldn't find `$background` as a location\nAvailable backgrounds are: $backgroundsString").queue()
             return
         }
 
         if (!characters.contains(character)) {
-            event.channel.sendMessage("Sorry, but I don't think that $character is a character in Camp Buddy\nAvailable characters are : $charactersString").queue()
+            event.channel.sendMessage("Sorry, but I don't think that `$character` is a character in Camp Buddy\nAvailable characters are: $charactersString").queue()
             return
         }
 
