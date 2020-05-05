@@ -26,22 +26,15 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
 class Enlarge : AbstractCommand("enlarge", CommandCategory.UTIL, "Returns an enlarged emote", "Run `enlarge <emote>` to get the full link to `<emote>` at a large size") {
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
-        if (args.count() == 0) {
+        val emotes = event.message.emotes
+
+        if (emotes.count() == 0) {
             event.channel.sendMessage("Sorry, but you need to provide me an emote to use this command~!").queue()
             return
         }
 
-        if (!EMOTE_ID_REGEX.containsMatchIn(args[0])) {
-            event.channel.sendMessage("Sorry, but to use this command you need to send emotes only~!").queue()
-            return
-        }
-
-        val emoteId = EMOTE_ID_REGEX.find(args[0])?.value
-        val emoteFormat = if (EMOTE_IS_ANIMATED_REGEX.containsMatchIn(args[0])) ".gif" else ".png"
-        val emoteLink = "https://cdn.discordapp.com/emojis/$emoteId$emoteFormat"
+        val emoteLink = emotes.first().imageUrl
 
         event.channel.sendMessage("${event.author.asMention}, here you go~!\n$emoteLink").queue()
-
-        println(emoteId)
     }
 }
