@@ -23,6 +23,11 @@ import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import kotlin.math.pow
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import javax.measure.Measure
+import javax.measure.quantity.Length
+import javax.measure.unit.SI.*
+import javax.measure.unit.NonSI.*
+import javax.measure.unit.Unit
 
 class Cvt : AbstractCommand(
     "cvt",
@@ -81,12 +86,12 @@ class Cvt : AbstractCommand(
             return
         }
 
-        val sourceDouble = sourceValue.toFloat()
+        val sourceFloat = sourceValue.toFloat()
 
         val converted = if (lengths.contains(targetUnit)) {
-            TODO("Length conversion")
+            convertLength(sourceFloat, sourceUnit, targetUnit)
         } else {
-            val kelvin = sourceDouble.toKelvin(srcUnitLower)
+            val kelvin = sourceFloat.toKelvin(srcUnitLower)
 
             if (kelvin < 0 || kelvin > 10F.pow(32F)) {
                 val highLow = if (kelvin < 0) "low" else "high"
@@ -105,7 +110,7 @@ class Cvt : AbstractCommand(
 
         channel.sendMessage(
             "<:LeeCute:701312766115315733> According to my calculations, " +
-                "`$sourceDouble${srcUnitLower.displayUnit()}` is $aboutPrecise `$converted${targetUnit.displayUnit()}`"
+                "`$sourceFloat${srcUnitLower.displayUnit()}` is $aboutPrecise `$converted${targetUnit.displayUnit()}`"
         )
             .queue()
     }
@@ -137,5 +142,31 @@ class Cvt : AbstractCommand(
         "f" -> (this - 273.15F) * (9F / 5F) + 32F
         "k" -> this
         else -> throw IllegalArgumentException("Invalid temperature supplied") // Should never happen
+    }
+
+    private fun convertLength(num: Float, source: String, target: String): Float {
+        val sourceUnit = source.toLengthUnit()
+        val targetUnit = target.toLengthUnit()
+        val converter = sourceUnit.getConverterTo(targetUnit)
+        val measure = Measure.valueOf(num, sourceUnit).doubleValue(sourceUnit)
+
+        return converter.convert(measure).toFloat()
+    }
+
+    private fun String.toLengthUnit(): Unit<Length> {
+        return when (this) {
+            "mm" -> MILLIMETER
+            "cm" -> CENTIMETER
+            "m" -> METER
+            "km" -> KILOMETER
+
+            "pc" -> POINT.times(12)
+            "pt" -> POINT
+            "in" -> INCH
+            "ft" -> FOOT
+            "px" -> PIXEL
+
+            else -> throw IllegalArgumentException("Unit not found")
+        }
     }
 }

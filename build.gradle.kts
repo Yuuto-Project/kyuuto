@@ -49,6 +49,8 @@ dependencies {
     implementation(group = "org.reflections", name = "reflections", version = "0.9.12")
     // Http client
     implementation(group = "com.squareup.okhttp3", name = "okhttp", version = "4.5.0")
+    // For all conversions
+    implementation(group = "org.jscience", name = "jscience", version = "4.3.1")
 }
 
 tasks {
