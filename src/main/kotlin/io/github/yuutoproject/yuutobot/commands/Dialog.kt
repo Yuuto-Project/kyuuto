@@ -23,6 +23,7 @@ import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import io.github.yuutoproject.yuutobot.utils.EMOJI_REGEX
 import io.github.yuutoproject.yuutobot.utils.EMOTE_MENTIONS_REGEX
 import io.github.yuutoproject.yuutobot.utils.NONASCII_REGEX
+import io.github.yuutoproject.yuutobot.utils.httpClient
 import java.io.IOException
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.internal.utils.IOUtil
@@ -70,14 +71,12 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "does something",
         "yuuto"
     )
 
-    private val backgroundsString: String = backgrounds.joinToString("`, `")
-    private val charactersString: String = characters.joinToString("`, `")
+    private val backgroundsString: String = "`${backgrounds.joinToString("`, `")}`"
+    private val charactersString: String = "`${characters.joinToString("`, `")}`"
 
     // Using ExperimentalStdLib for .removeFirst() in Mutable Lists
     @ExperimentalStdlibApi
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
-        val moveThisToAStorageLocation = OkHttpClient()
-
         val now: Long = System.currentTimeMillis()
 
         if (args.count() < 2) {
@@ -96,12 +95,12 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "does something",
         }
 
         if (!backgrounds.contains(background)) {
-            event.channel.sendMessage("Sorry but I couldn't find $background as a location\nAvailable backgrounds are : `$backgroundsString`").queue()
+            event.channel.sendMessage("Sorry but I couldn't find $background as a location\nAvailable backgrounds are : $backgroundsString").queue()
             return
         }
 
         if (!characters.contains(character)) {
-            event.channel.sendMessage("Sorry, but I don't think that $character is a character in Camp Buddy\nAvailable characters are : `$charactersString`").queue()
+            event.channel.sendMessage("Sorry, but I don't think that $character is a character in Camp Buddy\nAvailable characters are : $charactersString").queue()
             return
         }
 
@@ -111,6 +110,11 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "does something",
         }
 
         val text: String = args.joinToString(" ").replace("/[‘’]/g".toRegex(), "'")
+
+        if (text.length > 120) {
+            event.channel.sendMessage("Sorry, the message limit is 120 characters <:hiroJey:692008426842226708>").queue()
+            return
+        }
 
         if (
             EMOTE_MENTIONS_REGEX.containsMatchIn(text) ||
@@ -135,7 +139,7 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "does something",
             .post(body)
             .build()
 
-        moveThisToAStorageLocation.newCall(request).enqueue(object : OkHttp3Callback {
+        httpClient.newCall(request).enqueue(object : OkHttp3Callback {
             override fun onFailure(call: Call, e: IOException) {
                 event.channel.sendMessage("An error just happened in me, blame the devs <:YoichiLol:701312070880329800>").queue()
             }
