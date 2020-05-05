@@ -56,7 +56,7 @@ class Yuuto {
             .setBulkDeleteSplittingEnabled(false)
             .build()
 
-        // TODO: Does not seem to be requried with JDA
+        // TODO: Does not seem to be required with JDA
 //        this.startGameTimer()
     }
 
