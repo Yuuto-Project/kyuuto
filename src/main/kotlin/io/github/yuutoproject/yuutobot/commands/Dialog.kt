@@ -34,7 +34,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.slf4j.LoggerFactory
 
-class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "does something", "[bg] <char> <text>") {
+class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an image of a character in Camp Buddy saying anything you want", "[bg] <char> <text>") {
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     private val backgrounds = listOf(
@@ -112,9 +112,9 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "does something",
             return
         }
 
-        val text: String = args.joinToString(" ").replace("/[‘’]/g".toRegex(), "'")
+        val text = args.joinToString(" ").replace("/[‘’]/g".toRegex(), "'")
 
-        if (text.length > 120) {
+        if (text.length > 140) {
             event.channel.sendMessage("Sorry, the message limit is 120 characters <:hiroJey:692008426842226708>").queue()
             return
         }
