@@ -18,4 +18,5 @@
 
 package io.github.yuutoproject.yuutobot.utils
 
-val EMOTE_ID_REGEX : Regex = "[^:]+(?=>)".toRegex()
+val EMOTE_ID_REGEX = "[^:]+(?=>)".toRegex()
+val EMOTE_IS_ANIMATED_REGEX = "(<a)".toRegex()
