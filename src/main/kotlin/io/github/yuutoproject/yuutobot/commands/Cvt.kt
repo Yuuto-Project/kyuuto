@@ -43,7 +43,6 @@ class Cvt : AbstractCommand(
         val channel = event.channel
 
         if (args.isNotEmpty() && args[0].toLowerCase() == "handegg") {
-            // TODO: delete, maybe use flatmap somehow
             channel.sendMessage("Americans call the handegg a football.").queue()
             return
         }
@@ -75,18 +74,19 @@ class Cvt : AbstractCommand(
         val inputSplit = inputPattern.find(input) ?: return
         // Destructuring the list
         val (_, sourceValue, sourceUnit) = inputSplit.groupValues
+        val srcUnitLower = sourceUnit.toLowerCase()
 
-        if (!sourceUnit.isCompatibleWithUnit(targetUnit)) {
+        if (!srcUnitLower.isCompatibleWithUnit(targetUnit)) {
             channel.sendMessage("<:YoichiLOL:701312070880329800> I wish that that was possible as well mate.").queue()
             return
         }
 
-        val sourceDouble = sourceValue.toDouble()
+        val sourceDouble = sourceValue.toFloat()
 
         val converted = if (lengths.contains(targetUnit)) {
             TODO("Length conversion")
         } else {
-            val kelvin = sourceDouble.toKelvin(sourceUnit)
+            val kelvin = sourceDouble.toKelvin(srcUnitLower)
 
             if (kelvin < 0 || kelvin > 10F.pow(32F)) {
                 val highLow = if (kelvin < 0) "low" else "high"
@@ -101,11 +101,11 @@ class Cvt : AbstractCommand(
 
         // TODO: handle overflow somehow
 
-        val aboutPrecise = if (sourceUnit == targetUnit) "precisely" else "about"
+        val aboutPrecise = if (srcUnitLower == targetUnit) "precisely" else "about"
 
         channel.sendMessage(
             "<:LeeCute:701312766115315733> According to my calculations, " +
-                "`$sourceDouble${sourceUnit.displayUnit()}` is $aboutPrecise `$converted${targetUnit.displayUnit()}`"
+                "`$sourceDouble${srcUnitLower.displayUnit()}` is $aboutPrecise `$converted${targetUnit.displayUnit()}`"
         )
             .queue()
     }
@@ -125,16 +125,16 @@ class Cvt : AbstractCommand(
         else -> this
     }
 
-    private fun Double.toKelvin(srcUnit: String) = when (srcUnit) {
-        "c" -> this + 273.15
-        "f" -> (this - 32) * (5 / 9) + 273.15
+    private fun Float.toKelvin(srcUnit: String) = when (srcUnit) {
+        "c" -> this + 273.15F
+        "f" -> (this - 32F) * (5F / 9F) + 273.15F
         "k" -> this
         else -> throw IllegalArgumentException("Invalid temperature supplied") // Should never happen
     }
 
-    private fun Double.toTemp(targetUnit: String) = when (targetUnit) {
-        "c" -> this - 273.15
-        "f" -> (this - 273.15) * (9 / 5) + 32
+    private fun Float.toTemp(targetUnit: String) = when (targetUnit) {
+        "c" -> this - 273.15F
+        "f" -> (this - 273.15F) * (9F / 5F) + 32F
         "k" -> this
         else -> throw IllegalArgumentException("Invalid temperature supplied") // Should never happen
     }
