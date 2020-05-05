@@ -30,50 +30,55 @@ import okhttp3.*
 import okhttp3.Callback as OkHttp3Callback
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
-
-val backgrounds : List<String> = listOf(
-    "bath",
-    "beach",
-    "cabin",
-    "camp",
-    "cave",
-    "forest",
-    "messhall"
-)
-
-val characters : List<String> = listOf(
-    "aiden",
-    "avan",
-    "chiaki",
-    "connor",
-    "eduard",
-    "felix",
-    "goro",
-    "hiro",
-    "hunter",
-    "jirou",
-    "keitaro",
-    "kieran",
-    "knox",
-    "lee",
-    "naoto",
-    "natsumi",
-    "seto",
-    "taiga",
-    "yoichi",
-    "yoshi",
-    "yuri",
-    "yuuto"
-)
-
-val backgroundsString : String = backgrounds.joinToString("`, `")
-val charactersString : String = characters  .joinToString("`, `")
+import org.slf4j.LoggerFactory
 
 class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "does something", "[bg] <char> <text>") {
+    private val logger = LoggerFactory.getLogger(this.javaClass)
+
+    private val backgrounds : List<String> = listOf(
+        "bath",
+        "beach",
+        "cabin",
+        "camp",
+        "cave",
+        "forest",
+        "messhall"
+    )
+
+    private val characters : List<String> = listOf(
+        "aiden",
+        "avan",
+        "chiaki",
+        "connor",
+        "eduard",
+        "felix",
+        "goro",
+        "hiro",
+        "hunter",
+        "jirou",
+        "keitaro",
+        "kieran",
+        "knox",
+        "lee",
+        "naoto",
+        "natsumi",
+        "seto",
+        "taiga",
+        "yoichi",
+        "yoshi",
+        "yuri",
+        "yuuto"
+    )
+
+    private val backgroundsString : String = backgrounds.joinToString("`, `")
+    private val charactersString : String = characters  .joinToString("`, `")
+
     //Using ExperimentalStdLib for .removeFirst() in Mutable Lists
     @ExperimentalStdlibApi
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
         val moveThisToAStorageLocation = OkHttpClient()
+
+        val now : Long = System.currentTimeMillis()
 
         if(args.count() < 2){
             event.channel.sendMessage("This command requires two arguments : `dialog [background] <character> <text>` ([] is optional)").queue()
@@ -91,7 +96,7 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "does something",
         }
 
         if(!backgrounds.contains(background)){
-            event.channel.sendMessage("Sorry but I couldn't find $background as a location\n available backgrounds are : `$backgroundsString`").queue()
+            event.channel.sendMessage("Sorry but I couldn't find $background as a location\nAvailable backgrounds are : `$backgroundsString`").queue()
             return
         }
 
@@ -126,19 +131,18 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "does something",
             }""".trimIndent().toRequestBody(json)
 
         val request = Request.Builder()
-            .url("https://yuuto.dunctebot.com/dialog")
+            .url("https://kyuu.to/dialog")
             .post(body)
             .build()
 
-
         moveThisToAStorageLocation.newCall(request).enqueue(object : OkHttp3Callback {
             override fun onFailure(call: Call, e: IOException) {
-                event.channel.sendMessage("Uh oh, an error just occurred. im sorry").queue()
+                event.channel.sendMessage("An error just happened in me, blame the devs <:YoichiLol:701312070880329800>").queue()
             }
 
             override fun onResponse(call: Call, response: Response) {
                 if(response.code != 200){
-                    event.channel.sendMessage("Uh oh, an error just occurred. im sorry").queue()
+                    event.channel.sendMessage("An error just happened in me, blame the devs <:YoichiLol:701312070880329800>").queue()
                     return
                 }
 
@@ -148,6 +152,8 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "does something",
                     .append(event.author.asMention)
                     .append(", Here ya go!")
                     .queue()
+
+                logger.info("Generated image for $character at $background, took ${System.currentTimeMillis()-now}ms")
             }
         })
     }
