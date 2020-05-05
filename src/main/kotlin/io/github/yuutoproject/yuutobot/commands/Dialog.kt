@@ -26,6 +26,7 @@ import io.github.yuutoproject.yuutobot.utils.NONASCII_REGEX
 import io.github.yuutoproject.yuutobot.utils.httpClient
 import java.io.IOException
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.utils.data.DataObject
 import net.dv8tion.jda.internal.utils.IOUtil
 import okhttp3.*
 import okhttp3.Callback as OkHttp3Callback
@@ -36,7 +37,7 @@ import org.slf4j.LoggerFactory
 class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "does something", "[bg] <char> <text>") {
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    private val backgrounds: List<String> = listOf(
+    private val backgrounds = listOf(
         "bath",
         "beach",
         "cabin",
@@ -46,7 +47,7 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "does something",
         "messhall"
     )
 
-    private val characters: List<String> = listOf(
+    private val characters = listOf(
         "aiden",
         "avan",
         "chiaki",
@@ -71,8 +72,10 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "does something",
         "yuuto"
     )
 
-    private val backgroundsString: String = "`${backgrounds.joinToString("`, `")}`"
-    private val charactersString: String = "`${characters.joinToString("`, `")}`"
+    private val backgroundsString = "`${backgrounds.joinToString("`, `")}`"
+    private val charactersString = "`${characters.joinToString("`, `")}`"
+
+    private val json = "application/json; charset=utf-8".toMediaType()
 
     // Using ExperimentalStdLib for .removeFirst() in Mutable Lists
     @ExperimentalStdlibApi
@@ -84,7 +87,7 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "does something",
             return
         }
 
-        var character: String = args.removeFirst().toLowerCase()
+        var character = args.removeFirst().toLowerCase()
         val background: String
 
         if (characters.contains(character)) {
@@ -127,12 +130,11 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "does something",
 
         event.channel.sendTyping().queue()
 
-        val json = "application/json; charset=utf-8".toMediaType()
-        val body = """{
-                "background": "$background",
-                "character": "$character",
-                "text": "$text"
-            }""".trimIndent().toRequestBody(json)
+        val body = DataObject.empty()
+            .put("background", background)
+            .put("character", character)
+            .put("text", text)
+            .toString().toRequestBody(json)
 
         val request = Request.Builder()
             .url("https://kyuu.to/dialog")
@@ -145,7 +147,10 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "does something",
             }
 
             override fun onResponse(call: Call, response: Response) {
-                if (response.code != 200) {
+                if (response.code == 429) {
+                    event.channel.sendMessage("I can't handle this much load at the moment, maybe try again later? <:YoichiPlease:692008252690530334>")
+                    return
+                } else if (response.code != 200) {
                     event.channel.sendMessage("An error just happened in me, blame the devs <:YoichiLol:701312070880329800>").queue()
                     return
                 }
