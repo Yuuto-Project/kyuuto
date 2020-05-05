@@ -24,10 +24,8 @@ import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import kotlin.math.pow
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import javax.measure.Measure
-import javax.measure.quantity.Length
 import javax.measure.unit.SI.*
 import javax.measure.unit.NonSI.*
-import javax.measure.unit.Unit
 
 class Cvt : AbstractCommand(
     "cvt",
@@ -40,9 +38,10 @@ class Cvt : AbstractCommand(
     private val inputPattern = "(-?[\\d.]+)(\\D{1,2})".toRegex()
     private val lengths = arrayOf("mm", "cm", "m", "pc", "pt", "in", "ft", "px")
     private val temps = arrayOf("c", "f", "k")
+    private val weights = arrayOf("kg", "lbs")
 
     // The + sign combines the arrays
-    private val validUnits = temps + lengths
+    private val validUnits = temps + lengths + weights
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
         val channel = event.channel
@@ -56,6 +55,7 @@ class Cvt : AbstractCommand(
             channel.sendMessage(
                 "Temperature units to convert to are `${temps.joinToString("`, `")}` from those values.\n" +
                     "Height units to convert to are `${lengths.joinToString("`, `")}` from those same values as well.\n" +
+                    "Weight units to convert to are `${weights.joinToString("`, `")}` again from the same values.\n" +
                     "The syntax is `${Yuuto.config["PREFIX"]}cvt <unit-to-convert-to> <value>`"
             ).queue()
             return
@@ -88,20 +88,29 @@ class Cvt : AbstractCommand(
 
         val sourceFloat = sourceValue.toFloat()
 
-        val converted = if (lengths.contains(targetUnit)) {
-            convertLength(sourceFloat, sourceUnit, targetUnit)
-        } else {
-            val kelvin = sourceFloat.toKelvin(srcUnitLower)
+        val converted = when {
+            lengths.contains(targetUnit) -> convertLength(sourceFloat, sourceUnit, targetUnit)
+            weights.contains(targetUnit) -> {
+                val source = sourceUnit.toMassUnit()
+                val target = targetUnit.toMassUnit()
+                val converter = source.getConverterTo(target)
+                val measure = Measure.valueOf(sourceFloat, source).doubleValue(source)
 
-            if (kelvin < 0 || kelvin > 10F.pow(32F)) {
-                val highLow = if (kelvin < 0) "low" else "high"
-
-                channel.sendMessage("<:HiroOhGod:701312362401103902> Temperatures that $highLow are not possible.")
-                    .queue()
-                return
+                converter.convert(measure).toFloat()
             }
+            else -> {
+                val kelvin = sourceFloat.toKelvin(srcUnitLower)
 
-            kelvin.toTemp(targetUnit)
+                if (kelvin < 0 || kelvin > 10F.pow(32F)) {
+                    val highLow = if (kelvin < 0) "low" else "high"
+
+                    channel.sendMessage("<:HiroOhGod:701312362401103902> Temperatures that $highLow are not possible.")
+                        .queue()
+                    return
+                }
+
+                kelvin.toTemp(targetUnit)
+            }
         }
 
         // TODO: handle overflow somehow
@@ -117,6 +126,10 @@ class Cvt : AbstractCommand(
 
     private fun String.isCompatibleWithUnit(unit: String): Boolean {
         if (temps.contains(this) && temps.contains(unit)) {
+            return true
+        }
+
+        if (weights.contains(this) && weights.contains(unit)) {
             return true
         }
 
@@ -153,20 +166,25 @@ class Cvt : AbstractCommand(
         return converter.convert(measure).toFloat()
     }
 
-    private fun String.toLengthUnit(): Unit<Length> {
-        return when (this) {
-            "mm" -> MILLIMETER
-            "cm" -> CENTIMETER
-            "m" -> METER
-            "km" -> KILOMETER
+    private fun String.toLengthUnit() = when (this) {
+        "mm" -> MILLIMETER
+        "cm" -> CENTIMETER
+        "m" -> METER
+        "km" -> KILOMETER
 
-            "pc" -> POINT.times(12)
-            "pt" -> POINT
-            "in" -> INCH
-            "ft" -> FOOT
-            "px" -> PIXEL
+        "pc" -> POINT.times(12)
+        "pt" -> POINT
+        "in" -> INCH
+        "ft" -> FOOT
+        "px" -> PIXEL
 
-            else -> throw IllegalArgumentException("Unit not found")
-        }
+        else -> throw IllegalArgumentException("Unit not found")
+    }
+
+    private fun String.toMassUnit() = when (this) {
+        "kg" -> KILOGRAM
+        "lbs" -> POUND
+
+        else -> throw IllegalArgumentException("Unit not found")
     }
 }
