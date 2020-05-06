@@ -80,7 +80,7 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an ima
     // Using ExperimentalStdLib for .removeFirst() in Mutable Lists
     @ExperimentalStdlibApi
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
-        val now: Long = System.currentTimeMillis()
+        val now = System.currentTimeMillis()
 
         if (args.count() < 2) {
             event.channel.sendMessage("This command requires two arguments : `dialog [background] <character> <text>` ([] is optional)").queue()
@@ -147,11 +147,14 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an ima
             }
 
             override fun onResponse(call: Call, response: Response) {
-                if (response.code == 429) {
-                    event.channel.sendMessage("I can't handle this much load at the moment, maybe try again later? <:YoichiPlease:692008252690530334>")
-                    return
-                } else if (response.code != 200) {
-                    event.channel.sendMessage("An error just happened in me, blame the devs <:YoichiLol:701312070880329800>").queue()
+                if (response.code != 200) {
+                    val errorJson = DataObject.fromJson(IOUtil.readFully(IOUtil.getBody(response)))
+                    val errorMessage = when (response.code) {
+                        422 -> "There was an error, sorry <:YoichiPlease:692008252690530334> - ${errorJson.getString("message")}"
+                        429 -> "I can't handle this much load at the moment, maybe try again later? <:YoichiPlease:692008252690530334>"
+                        else -> "An error just happened in me, blame the devs <:YoichiLol:701312070880329800>"
+                    }
+                    event.channel.sendMessage(errorMessage).queue()
                     return
                 }
 
@@ -159,7 +162,7 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an ima
 
                 event.channel.sendFile(stream, "file.png")
                     .append(event.author.asMention)
-                    .append(", Here ya go!")
+                    .append(", Here you go!")
                     .queue()
 
                 logger.info("Generated image for $character at $background, took ${System.currentTimeMillis() - now}ms")
