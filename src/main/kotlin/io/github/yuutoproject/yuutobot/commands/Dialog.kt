@@ -148,12 +148,15 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an ima
 
             override fun onResponse(call: Call, response: Response) {
                 if (response.code != 200) {
-                    val errorJson = DataObject.fromJson(IOUtil.readFully(IOUtil.getBody(response)))
                     val errorMessage = when (response.code) {
-                        422 -> "There was an error, sorry <:YoichiPlease:692008252690530334> - ${errorJson.getString("message")}"
+                        422 -> {
+                            val errorJson = DataObject.fromJson(IOUtil.readFully(IOUtil.getBody(response)))
+                            "There was an error, sorry <:YoichiPlease:692008252690530334> - ${errorJson.getString("message")}"
+                        }
                         429 -> "I can't handle this much load at the moment, maybe try again later? <:YoichiPlease:692008252690530334>"
                         else -> "An error just happened in me, blame the devs <:YoichiLol:701312070880329800>"
                     }
+
                     event.channel.sendMessage(errorMessage).queue()
                     return
                 }
