@@ -21,7 +21,6 @@ package io.github.yuutoproject.yuutobot.commands
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import io.github.yuutoproject.yuutobot.utils.EMOJI_REGEX
-import io.github.yuutoproject.yuutobot.utils.EMOTE_MENTIONS_REGEX
 import io.github.yuutoproject.yuutobot.utils.NONASCII_REGEX
 import io.github.yuutoproject.yuutobot.utils.httpClient
 import java.io.IOException
@@ -120,7 +119,7 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an ima
         }
 
         if (
-            EMOTE_MENTIONS_REGEX.containsMatchIn(text) ||
+            event.message.mentionedMembers.isNotEmpty() ||
             EMOJI_REGEX.containsMatchIn(text) ||
             NONASCII_REGEX.containsMatchIn(text)
         ) {
