@@ -88,6 +88,11 @@ class Cvt : AbstractCommand(
 
         val sourceFloat = sourceValue.toFloat()
 
+        if ((lengths.contains(targetUnit) || weights.contains(targetUnit)) && sourceFloat < 0) {
+            channel.sendMessage("<:AmaThink:701049739747000371> I don't think that `$input` is possible").queue()
+            return
+        }
+
         val converted = when {
             lengths.contains(targetUnit) -> convertLength(sourceFloat, sourceUnit, targetUnit)
             weights.contains(targetUnit) -> {
@@ -113,8 +118,6 @@ class Cvt : AbstractCommand(
             }
         }
 
-        // TODO: handle overflow somehow
-
         val aboutPrecise = if (srcUnitLower == targetUnit) "precisely" else "about"
 
         channel.sendMessage(
@@ -125,15 +128,9 @@ class Cvt : AbstractCommand(
     }
 
     private fun String.isCompatibleWithUnit(unit: String): Boolean {
-        if (temps.contains(this) && temps.contains(unit)) {
-            return true
-        }
-
-        if (weights.contains(this) && weights.contains(unit)) {
-            return true
-        }
-
-        return lengths.contains(this) && lengths.contains(unit)
+        return temps.contains(this) && temps.contains(unit) ||
+            weights.contains(this) && weights.contains(unit) ||
+            lengths.contains(this) && lengths.contains(unit)
     }
 
     private fun String.displayUnit() = when (this) {
