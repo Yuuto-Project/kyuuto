@@ -76,8 +76,6 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an ima
 
     private val json = "application/json; charset=utf-8".toMediaType()
 
-    // Using ExperimentalStdLib for .removeFirst() in Mutable Lists
-    @ExperimentalStdlibApi
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
         val now = System.currentTimeMillis()
 
@@ -86,14 +84,14 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an ima
             return
         }
 
-        var character = args.removeFirst().toLowerCase()
+        var character = args.removeAt(0).toLowerCase()
         val background: String
 
         if (characters.contains(character)) {
             background = "camp"
         } else {
             background = character
-            character = args.removeFirst().toLowerCase()
+            character = args.removeAt(0).toLowerCase()
         }
 
         if (!backgrounds.contains(background)) {
