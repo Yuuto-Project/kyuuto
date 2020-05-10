@@ -20,8 +20,8 @@ package io.github.yuutoproject.yuutobot.commands
 
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
 class Info : AbstractCommand("info", CommandCategory.INFO, "Shows the information about the bot and it's developers", "info") {
 
@@ -41,9 +41,8 @@ class Info : AbstractCommand("info", CommandCategory.INFO, "Shows the informatio
                     "Quick Change log: \n" +
                     "```diff\nMoved from JavaScript to Kotlin \n```"
             )
-            .setFooter("Yuuto: Release 3.0 | 2020-TBA");
+            .setFooter("Yuuto: Release 3.0 | 2020-TBA")
 
         event.channel.sendMessage(InfoEmbed.build()).queue()
-
     }
 }
