@@ -27,16 +27,17 @@ class Law : AbstractCommand("law", CommandCategory.INFO, "Shows the buddy law", 
     override val aliases = arrayOf("buddylaw", "buddylaws")
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
-        val LawEmbed = EmbedBuilder()
+        val lawEmbed = EmbedBuilder()
             .setColor(0xFF93CE)
             .setTitle("The Buddy Law")
-            .setDescription(
-                "1) A buddy should be kind, helpful and trustworthy to each other!\n" +
-                    "2) A buddy must be always ready for anything!\n" +
-                    "3) A buddy should always show a bright smile on his face!\n" +
-                    "||4) We leave no buddy behind!||"
+            .setDescription("""
+                1) A buddy should be kind, helpful and trustworthy to each other!
+                2) A buddy must be always ready for anything!
+                3) A buddy should always show a bright smile on his face!
+                ||4) We leave no buddy behind!||
+"""
             )
 
-        event.channel.sendMessage(LawEmbed.build()).queue()
+        event.channel.sendMessage(lawEmbed.build()).queue()
     }
 }
