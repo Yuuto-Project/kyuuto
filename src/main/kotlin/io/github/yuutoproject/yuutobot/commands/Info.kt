@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
 class Info : AbstractCommand("info", CommandCategory.INFO, "Shows the information about the bot and it's developers", "info") {
+    override val aliases = arrayOf("bot", "credits")
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
         val InfoEmbed = EmbedBuilder()
