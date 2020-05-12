@@ -40,19 +40,23 @@ class Help : AbstractCommand(
         val commandName = args.getOrElse(0) { "list" }
 
         if (commandName == "list") {
-            val groups = commands.values.groupBy { it.category }
+            val message = event.channel.sendMessage(
+                "Here is a list of all commands and their descriptions:\n"
+            )
 
-            val list = groups.map { (category, categoryCommands) ->
-                "$category\n" + categoryCommands.joinToString("") { "`${it.name}` - ${it.description}\n" }
+            val groups = commands.values.groupBy(AbstractCommand::category)
+
+            for ((category, commandsInCategory) in groups) {
+                message.append("\n$category\n")
+
+                for (command in commandsInCategory) {
+                    message.append("`${command.name}` - ${command.description}\n")
+                }
             }
 
-            event.channel.sendMessage(
-                "Here is a list of all commands and their descriptions:\n\n" +
-                    list.joinToString("\n")
-            ).queue()
+            message.queue()
             return
         }
-
 
         // No need to worry about indexing with null, it just returns null
         val command = commands[commandName] ?: commands[aliases[commandName]] ?: run {
@@ -60,11 +64,17 @@ class Help : AbstractCommand(
             return
         }
 
-        event.channel.sendMessage(
+        val message = event.channel.sendMessage(
             "**Category:** ${command.category}\n" +
-                "**Usage for command:** `${command.name}`\n\n" +
-                command.usage +
-                if (command.aliases.isNotEmpty()) "\n\n**Aliases:** `${command.aliases.joinToString("`, `")}`" else ""
-        ).queue()
+                "**Usage for command** `${command.name}`**:**\n\t" +
+                command.usage
+        )
+
+        if (command.aliases.isNotEmpty()) {
+            message.append("\n**Aliases:** `${command.aliases.joinToString("`, `")}`")
+        }
+
+        message.queue()
+
     }
 }

@@ -21,7 +21,7 @@ package io.github.yuutoproject.yuutobot.commands.base
 enum class CommandCategory(val emote: String) {
     INFO("\u2139"),
     UTILITIES("\u2699"),
-    OTHER("");
+    OTHER("\uD83D\uDCC2");
 
     // This is an instance prop
     val displayName: String = name.toLowerCase().capitalize()
