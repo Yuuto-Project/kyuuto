@@ -91,7 +91,9 @@ class CommandManager : ListenerAdapter() {
     }
 
     private fun loadCommands() {
-        commands["help"] = Help(this)
+        val help = Help(this)
+        help.aliases.forEach { alias -> aliases[alias] = "help" }
+        commands["help"] = help
 
         val reflections = Reflections("io.github.yuutoproject.yuutobot.commands")
 
