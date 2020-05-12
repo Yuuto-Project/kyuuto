@@ -18,11 +18,13 @@
 
 package io.github.yuutoproject.yuutobot.commands.base
 
-enum class CommandCategory {
-    INFO,
-    UTIL,
-    OTHER_CATEGORY;
+enum class CommandCategory(val emote: String) {
+    INFO("\u2139"),
+    UTILITIES("\u2699"),
+    OTHER("");
 
     // This is an instance prop
-    val displayName: String = name.toLowerCase()
+    val displayName: String = name.toLowerCase().capitalize()
+
+    override fun toString() = "$emote $displayName"
 }

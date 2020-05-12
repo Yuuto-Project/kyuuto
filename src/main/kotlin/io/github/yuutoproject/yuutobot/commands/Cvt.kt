@@ -21,12 +21,12 @@ package io.github.yuutoproject.yuutobot.commands
 import io.github.yuutoproject.yuutobot.Yuuto
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
-import kotlin.math.pow
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import kotlin.math.pow
 
 class Cvt : AbstractCommand(
     "cvt",
-    CommandCategory.UTIL,
+    CommandCategory.UTILITIES,
     "Helps converting stuff",
     "Run `cvt <target unit> <value><origin unit>` to convert `<value>` from `<origin unit>` to `<target unit>`."
 ) {
