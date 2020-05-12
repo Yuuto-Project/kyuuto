@@ -18,12 +18,12 @@
 
 package io.github.yuutoproject.yuutobot.commands
 
-import io.github.yuutoproject.yuutobot.Listener
+import io.github.yuutoproject.yuutobot.CommandManager
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
-class Help : AbstractCommand(
+class Help(private val commandManager: CommandManager) : AbstractCommand(
     "help",
     CommandCategory.INFO,
     "Get the usage of any other command",
@@ -32,10 +32,8 @@ class Help : AbstractCommand(
     override val aliases = arrayOf("usage", "commands")
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
-        // Unsatisfactory solution for now, requires rework of command registration & execution
-        val listener = event.jda.registeredListeners[0] as Listener
-        val commands = listener.commands
-        val aliases = listener.aliases
+        val commands = this.commandManager.commands
+        val aliases = this.commandManager.aliases
 
         val commandName = args.getOrElse(0) { "list" }
 
@@ -75,6 +73,5 @@ class Help : AbstractCommand(
         }
 
         message.queue()
-
     }
 }

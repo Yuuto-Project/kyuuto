@@ -18,6 +18,7 @@
 
 package io.github.yuutoproject.yuutobot
 
+import io.github.yuutoproject.yuutobot.commands.Help
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -28,7 +29,7 @@ import org.reflections.Reflections
 import org.slf4j.LoggerFactory
 import java.lang.reflect.Modifier
 
-class Listener : ListenerAdapter() {
+class CommandManager : ListenerAdapter() {
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     val commands = hashMapOf<String, AbstractCommand>()
@@ -90,10 +91,12 @@ class Listener : ListenerAdapter() {
     }
 
     private fun loadCommands() {
+        commands["help"] = Help(this)
+
         val reflections = Reflections("io.github.yuutoproject.yuutobot.commands")
 
         reflections.getSubTypesOf(AbstractCommand::class.java)
-            .filter { !Modifier.isAbstract(it.modifiers) }
+            .filter { !Modifier.isAbstract(it.modifiers) && it.declaredConstructors[0].parameters.isEmpty() }
             .forEach {
                 val command = it.getDeclaredConstructor().newInstance()
 
