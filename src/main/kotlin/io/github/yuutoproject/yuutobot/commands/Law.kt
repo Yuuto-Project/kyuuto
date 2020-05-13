@@ -31,11 +31,11 @@ class Law : AbstractCommand("law", CommandCategory.INFO, "Shows the buddy law", 
             .setColor(0xFF93CE)
             .setTitle("The Buddy Law")
             .setDescription("""
-                !!1) A buddy should be kind, helpful and trustworthy to each other!
-                !!2) A buddy must be always ready for anything!
-                !!3) A buddy should always show a bright smile on his face!
-                !!||4) We leave no buddy behind!||
-""".trimMargin("!!")
+                |1) A buddy should be kind, helpful and trustworthy to each other!
+                |2) A buddy must be always ready for anything!
+                |3) A buddy should always show a bright smile on his face!
+                |||4) We leave no buddy behind!||
+""".trimMargin()
             )
 
         event.channel.sendMessage(lawEmbed.build()).queue()
