@@ -36,40 +36,28 @@ import org.slf4j.LoggerFactory
 class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an image of a character in Camp Buddy saying anything you want", "[bg] <char> <text>") {
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    private val backgrounds = listOf(
-        "bath",
-        "beach",
-        "cabin",
-        "camp",
-        "cave",
-        "forest",
-        "messhall"
-    )
+    @Suppress("UNCHECKED_CAST")
+    private fun getBackgroundsAndCharacters(): Pair<List<String>, List<String>> {
+        val request = Request.Builder()
+            .url("https://kyuu.to/info")
+            .get()
+            .build()
 
-    private val characters = listOf(
-        "aiden",
-        "avan",
-        "chiaki",
-        "connor",
-        "eduard",
-        "felix",
-        "goro",
-        "hiro",
-        "hunter",
-        "jirou",
-        "keitaro",
-        "kieran",
-        "knox",
-        "lee",
-        "naoto",
-        "natsumi",
-        "seto",
-        "taiga",
-        "yoichi",
-        "yoshi",
-        "yuri",
-        "yuuto"
-    )
+        httpClient.newCall(request).execute().use { response ->
+            if (response.code != 200) {
+                throw Exception("Failed to sync backgrounds and characters with API")
+            }
+            val json = DataObject.fromJson(IOUtil.readFully(IOUtil.getBody(response)))
+            return Pair(
+                json.getArray("backgrounds").toList() as List<String>,
+                json.getArray("characters").toList() as List<String>
+            )
+        }
+    }
+
+    private val bgAndChars = getBackgroundsAndCharacters()
+    private val backgrounds = bgAndChars.first
+    private val characters = bgAndChars.second
 
     private val backgroundsString = "`${backgrounds.joinToString("`, `")}`"
     private val charactersString = "`${characters.joinToString("`, `")}`"
