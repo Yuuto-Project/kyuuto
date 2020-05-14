@@ -58,5 +58,5 @@ class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what rou
         event.channel.sendMessage(messageEmbed).queue()
     }
 
-    fun getEmoteUrl(emoteId: String) = "https://cdn.discordapp.com/emojis/$emoteId.gif?v=1"
+    private fun getEmoteUrl(emoteId: String) = "https://cdn.discordapp.com/emojis/$emoteId.gif?v=1"
 }
