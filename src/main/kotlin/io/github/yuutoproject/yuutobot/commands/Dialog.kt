@@ -39,7 +39,7 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an ima
     @Suppress("UNCHECKED_CAST")
     private fun getBackgroundsAndCharacters(): Pair<List<String>, List<String>> {
         val request = Request.Builder()
-            .url("https://yuuto.dunctebot.com//info")
+            .url("https://yuuto.dunctebot.com/info")
             .get()
             .build()
 
