@@ -21,29 +21,23 @@ package io.github.yuutoproject.yuutobot.commands
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import io.github.yuutoproject.yuutobot.objects.Character
-import java.lang.IllegalArgumentException
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.utils.data.DataArray
 
-@Suppress("UNCHECKED_CAST")
 class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what route to play next", "route") {
     private val endings = listOf("perfect", "good", "bad", "worst")
-
-    private val routes: List<Character>
+    private val characters: MutableList<Character> = mutableListOf()
 
     init {
-        routes = DataArray.fromJson(this.javaClass.getResource("/routes.json").readText())
-            .map {
-                if (it !is HashMap<*, *>) {
-                    throw IllegalArgumentException("A")
-                }
-                Character(it as HashMap<String, Any>)
-            }
+        val charactersArr = DataArray.fromJson(this.javaClass.getResource("/routes.json").readText())
+        for (i in 0..charactersArr.length() - 1) {
+            characters.add(Character(charactersArr.getObject(i)))
+        }
     }
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
-        val route = routes.random()
+        val route = characters.random()
         val ending = endings.random()
 
         val name = route.name

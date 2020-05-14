@@ -19,13 +19,14 @@
 package io.github.yuutoproject.yuutobot.objects
 
 import io.github.yuutoproject.yuutobot.Utils
+import net.dv8tion.jda.api.utils.data.DataObject
 
-data class Character(val routeMap: HashMap<String, Any>) {
-    val name = routeMap.getValue("name") as String
-    val description = routeMap.getValue("description") as String
-    val age = routeMap.getValue("age").toString()
-    val birthday = routeMap.getValue("birthday") as String
-    val animal = routeMap.getValue("animal") as String
-    val color = Utils.hexStringToInt(routeMap.getValue("color") as String)
-    val emoteId = routeMap.getValue("emoteId") as String
+data class Character(val characterObject: DataObject) {
+    val name = characterObject.getString("name")
+    val description = characterObject.getString("description")
+    val age = characterObject.getString("age")
+    val birthday = characterObject.getString("birthday")
+    val animal = characterObject.getString("animal")
+    val color = Utils.hexStringToInt(characterObject.getString("color"))
+    val emoteId = characterObject.getString("emoteId")
 }
