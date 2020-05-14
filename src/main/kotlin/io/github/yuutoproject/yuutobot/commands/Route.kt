@@ -18,20 +18,20 @@
 
 package io.github.yuutoproject.yuutobot.commands
 
-import io.github.yuutoproject.yuutobot.objects.Character
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
+import io.github.yuutoproject.yuutobot.objects.Character
+import java.lang.IllegalArgumentException
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.utils.data.DataArray
-import java.lang.IllegalArgumentException
 
 class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what route to play next", "route") {
     private val endings = listOf("perfect", "good", "bad", "worst")
 
-    private val routes : List<Character>
+    private val routes: List<Character>
 
-    init{
+    init {
         routes = DataArray.fromJson(this.javaClass.getResource("/routes.json").readText())
             .map {
                 if (it !is HashMap<*, *>) {
