@@ -27,7 +27,7 @@ import net.dv8tion.jda.api.utils.data.DataArray
 import net.dv8tion.jda.api.utils.data.DataObject
 
 class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what route to play next", "route") {
-    fun DataArray.random(): DataObject = getObject((0 until length()).random())
+    private fun DataArray.random(): DataObject = getObject((0 until length()).random())
 
     private val endings = listOf("perfect", "good", "bad", "worst")
 
