@@ -24,13 +24,22 @@ import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.utils.data.DataArray
+import java.lang.IllegalArgumentException
 
 class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what route to play next", "route") {
     private val endings = listOf("perfect", "good", "bad", "worst")
 
-    @Suppress("UNCHECKED_CAST")
-    private val routes = DataArray.fromJson(this.javaClass.getResource("/routes.json").readText())
-        .map { Character(it as HashMap<String, Any>) }
+    private val routes : List<Character>
+
+    init{
+        routes = DataArray.fromJson(this.javaClass.getResource("/routes.json").readText())
+            .map {
+                if (it !is HashMap<*, *>) {
+                    throw IllegalArgumentException("A")
+                }
+                Character(it as HashMap<String, Any>)
+            }
+    }
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
         val route = routes.random()
