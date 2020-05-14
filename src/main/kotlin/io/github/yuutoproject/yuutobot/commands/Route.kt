@@ -18,7 +18,7 @@
 
 package io.github.yuutoproject.yuutobot.commands
 
-import io.github.yuutoproject.yuutobot.Utils
+import io.github.yuutoproject.yuutobot.objects.Character
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import net.dv8tion.jda.api.EmbedBuilder
@@ -30,7 +30,7 @@ class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what rou
 
     @Suppress("UNCHECKED_CAST")
     private val routes = DataArray.fromJson(this.javaClass.getResource("/routes.json").readText())
-        .map { Route(it as HashMap<String, Any>) }
+        .map { Character(it as HashMap<String, Any>) }
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
         val route = routes.random()
@@ -57,14 +57,4 @@ class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what rou
     }
 
     private fun getEmoteUrl(emoteId: String) = "https://cdn.discordapp.com/emojis/$emoteId.gif?v=1"
-
-    data class Route(val routeMap: HashMap<String, Any>) {
-        val name = routeMap.getValue("name") as String
-        val description = routeMap.getValue("description") as String
-        val age = routeMap.getValue("age").toString()
-        val birthday = routeMap.getValue("birthday") as String
-        val animal = routeMap.getValue("animal") as String
-        val color = Utils.hexStringToInt(routeMap.getValue("color") as String)
-        val emoteId = routeMap.getValue("emoteId") as String
-    }
 }
