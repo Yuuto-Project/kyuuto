@@ -26,7 +26,7 @@ class Enlarge : AbstractCommand("enlarge", CommandCategory.UTIL, "Returns an enl
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
         val emotes = event.message.emotes
 
-        if (emotes.count() == 0) {
+        if (emotes.isEmpty()) {
             event.channel.sendMessage("Sorry, but you need to provide me an emote to use this command~!").queue()
             return
         }
