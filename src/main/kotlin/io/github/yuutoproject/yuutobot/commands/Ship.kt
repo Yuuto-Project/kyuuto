@@ -16,14 +16,20 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.github.yuutoproject.yuutobot.commands.base
+package io.github.yuutoproject.yuutobot.commands
 
-enum class CommandCategory {
-    INFO,
-    FUN,
-    UTIL,
-    OTHER_CATEGORY;
+import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
+import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
-    // This is an instance prop
-    val displayName: String = name.toLowerCase()
+class Ship : AbstractCommand(
+    "ship",
+    CommandCategory.FUN,
+    "Yuuto mastered the art of shipping users and can now calculate if you and your crush will work out",
+    "<user1> <user2>"
+) {
+    override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
+        // TODO: Add JDA-Utils for finder util (or do custom version for multiple people search
+        // TODO: write the code (lol)
+    }
 }
