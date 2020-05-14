@@ -37,6 +37,7 @@ class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what rou
                 if (it !is HashMap<*, *>) {
                     throw IllegalArgumentException("A")
                 }
+                @Suppress("UNCHECKED_CAST")
                 Character(it as HashMap<String, Any>)
             }
     }
