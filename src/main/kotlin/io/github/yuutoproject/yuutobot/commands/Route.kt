@@ -21,18 +21,43 @@ package io.github.yuutoproject.yuutobot.commands
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.utils.data.DataArray
+import net.dv8tion.jda.api.utils.data.DataObject
+import java.awt.Color
+import kotlin.random.Random.Default.nextInt
 
-class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what route to play next", "route"){
+class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what route to play next", "route") {
+    fun DataArray.random() : DataObject = getObject(nextInt(length()))
 
-    val endings = listOf("perfect", "good", "bad", "worst")
+    private val endings = listOf("perfect", "good", "bad", "worst")
+
+    private val routesJsonString = this.javaClass.getResource("/routes.json").readText()
+    private val routes = DataArray.fromJson(routesJsonString)
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
-        endings.random()
-        var embed = EmbedBuilder()
+        val route = routes.random()
+        val ending = endings.random()
 
+        val list = listOf("aaa");
+        list.random()
+
+        val name = route.getString("name")
+        val firstName = name.split(" ")[0]
+
+        val messageEmbed = EmbedBuilder()
+            .setThumbnail(getEmoteUrl(route.getString("emoteId")))
+            .setColor(Color.decode(route.getString("color")))
+            .setTitle("Next : ${route.getString("name")}, $ending ending")
+            .setDescription(route.getString("description"))
+            .addField("Age", route.getString("age"), true)
+            .addField("Birthday", route.getString("birthday"), true)
+            .addField("Animal Motif", route.getString("animal"), true)
+            .setFooter("Play $firstName's route next. All bois are best bois.")
             .build()
+
+        event.channel.sendMessage(messageEmbed).queue();
     }
 
+    fun getEmoteUrl(emoteId : String) = "https://cdn.discordapp.com/emojis/$emoteId.gif?v=1"
 }
