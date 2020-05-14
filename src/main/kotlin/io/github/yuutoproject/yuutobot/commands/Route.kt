@@ -27,11 +27,11 @@ import net.dv8tion.jda.api.utils.data.DataArray
 
 class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what route to play next", "route") {
     private val endings = listOf("perfect", "good", "bad", "worst")
-    private val characters: MutableList<Character> = mutableListOf()
+    private val characters = arrayListOf<Character>()
 
     init {
         val charactersArr = DataArray.fromJson(this.javaClass.getResource("/routes.json").readText())
-        for (i in 0..charactersArr.length() - 1) {
+        for (i in 0 until charactersArr.length()) {
             characters.add(Character(charactersArr.getObject(i)))
         }
     }
@@ -46,7 +46,7 @@ class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what rou
         val message = event.message
 
         val messageEmbed = EmbedBuilder()
-            .setAuthor(message.member!!.nickname, null, message.author.avatarUrl)
+            .setAuthor(message.member?.nickname ?: message.author.name, null, message.author.avatarUrl)
             .setTitle("Next: $name, $ending ending")
             .setThumbnail(getEmoteUrl(route.emoteId))
             .setDescription(route.description)
