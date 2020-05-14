@@ -18,45 +18,53 @@
 
 package io.github.yuutoproject.yuutobot.commands
 
+import io.github.yuutoproject.yuutobot.Utils
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
-import java.awt.Color
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.utils.data.DataArray
-import net.dv8tion.jda.api.utils.data.DataObject
 
 class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what route to play next", "route") {
-    private fun DataArray.random(): DataObject = getObject((0 until length()).random())
-
     private val endings = listOf("perfect", "good", "bad", "worst")
 
-    private val routesJsonString = this.javaClass.getResource("/routes.json").readText()
-    private val routes = DataArray.fromJson(routesJsonString)
+    @Suppress("UNCHECKED_CAST")
+    private val routes = DataArray.fromJson(this.javaClass.getResource("/routes.json").readText())
+        .map { Route(it as HashMap<String, Any>) }
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
         val route = routes.random()
         val ending = endings.random()
 
-        val name = route.getString("name")
+        val name = route.name
         val firstName = name.split(" ")[0]
 
         val message = event.message
 
         val messageEmbed = EmbedBuilder()
-            .setThumbnail(getEmoteUrl(route.getString("emoteId")))
-            .setColor(Color.decode(route.getString("color")))
-            .setTitle("Next: ${route.getString("name")}, $ending ending")
-            .setDescription(route.getString("description"))
-            .addField("Age", route.getString("age"), true)
-            .addField("Birthday", route.getString("birthday"), true)
-            .addField("Animal Motif", route.getString("animal"), true)
+            .setAuthor(message.member!!.nickname, null, message.author.avatarUrl)
+            .setTitle("Next: $name, $ending ending")
+            .setThumbnail(getEmoteUrl(route.emoteId))
+            .setDescription(route.description)
+            .addField("Age", route.age, true)
+            .addField("Birthday", route.birthday, true)
+            .addField("Animal Motif", route.animal, true)
             .setFooter("Play $firstName's route next. All bois are best bois.")
-            .setAuthor(message.member?.nickname, null, message.author.avatarUrl)
+            .setColor(route.color)
             .build()
 
         event.channel.sendMessage(messageEmbed).queue()
     }
 
     private fun getEmoteUrl(emoteId: String) = "https://cdn.discordapp.com/emojis/$emoteId.gif?v=1"
+
+    data class Route(val routeMap: HashMap<String, Any>) {
+        val name = routeMap.getValue("name") as String
+        val description = routeMap.getValue("description") as String
+        val age = routeMap.getValue("age").toString()
+        val birthday = routeMap.getValue("birthday") as String
+        val animal = routeMap.getValue("animal") as String
+        val color = Utils.hexStringToInt(routeMap.getValue("color") as String)
+        val emoteId = routeMap.getValue("emoteId") as String
+    }
 }
