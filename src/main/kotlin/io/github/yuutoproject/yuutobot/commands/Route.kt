@@ -26,6 +26,7 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.utils.data.DataArray
 
+@Suppress("UNCHECKED_CAST")
 class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what route to play next", "route") {
     private val endings = listOf("perfect", "good", "bad", "worst")
 
@@ -37,7 +38,6 @@ class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what rou
                 if (it !is HashMap<*, *>) {
                     throw IllegalArgumentException("A")
                 }
-                @Suppress("UNCHECKED_CAST")
                 Character(it as HashMap<String, Any>)
             }
     }
