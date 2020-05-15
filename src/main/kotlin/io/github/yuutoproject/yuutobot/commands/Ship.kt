@@ -49,7 +49,7 @@ class Ship : AbstractCommand(
 
         // mutable map keeps the order, a hashmap does not
         val messagesMap = mutableMapOf<Int, String>()
-        val json = mapper.readTree(this.javaClass.getResourceAsStream("/ship_messages.json5"))
+        val json = mapper.readTree(this.javaClass.getResource("/ship_messages.json5"))
 
         json.forEach {
             messagesMap[it.get("max_score").asInt()] = it.get("message").asText()
@@ -59,7 +59,8 @@ class Ship : AbstractCommand(
         this.shipMessages = messagesMap.toMap()
 
         val riggedMap = hashMapOf<Long, Long>()
-        val riggedJson = mapper.readTree(this.javaClass.getResourceAsStream("/rigged_ships.json5"))
+        // TODO: Relocate this
+        val riggedJson = mapper.readTree(this.javaClass.getResource("/rigged_ships.json5"))
 
         riggedJson.fieldNames().forEach {
             riggedMap[it.toLong()] = riggedJson.get(it).asLong()
@@ -73,6 +74,34 @@ class Ship : AbstractCommand(
         // find a place to store the rigged ships that is not in the jar itself
         // TODO: (important) change all messages to CB related messages
         // ...
+
+        val channel = event.channel
+
+        if (args.size < 2) {
+            channel.sendMessage("Missing args").queue()
+            return
+        }
+
+        val name1 = args[0]
+        val member1 = this.findMember(name1, event)
+
+        if (member1 == null) {
+            channel.sendMessage("Missing member 1").queue()
+            return
+        }
+
+        val name2 = args[1]
+        val member2 = this.findMember(name2, event)
+
+        if (member2 == null) {
+            channel.sendMessage("Missing member 2").queue()
+            return
+        }
+
+        val (score, message) = this.getScoreAndMessage(member1, member2)
+
+
+        channel.sendMessage("${member1.user.asTag}x${member2.user.asTag} - $score - $message").queue()
     }
 
     private fun findMember(input: String, event: GuildMessageReceivedEvent): Member? {
@@ -102,7 +131,7 @@ class Ship : AbstractCommand(
         return (score % 100).toInt()
     }
 
-    fun getMessageFromScore(score: Int): String {
+    private fun getMessageFromScore(score: Int): String {
         val scoreKey = this.shipMessages.keys.first { score <= it }
 
         return this.shipMessages[scoreKey] ?: error("Excuse me but how is this even possible?")
@@ -120,12 +149,16 @@ class Ship : AbstractCommand(
 
         return score to message
     }
-}
 
-fun main() {
-    val ship = Ship()
+    companion object {
+        // main method for good old java in the good old java way
+        @JvmStatic
+        fun main(args: Array<String>) {
+            val ship = Ship()
 
-    for (i in 0..100) {
-        println("$i - ${ship.getMessageFromScore(i)}")
+            for (i in 0..100) {
+                println("$i - ${ship.getMessageFromScore(i)}")
+            }
+        }
     }
 }
