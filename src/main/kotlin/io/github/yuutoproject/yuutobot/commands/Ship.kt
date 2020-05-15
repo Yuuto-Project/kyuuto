@@ -21,10 +21,10 @@ package io.github.yuutoproject.yuutobot.commands
 import com.jagrosh.jdautilities.commons.utils.FinderUtil
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
-import io.github.yuutoproject.yuutobot.objects.ShipMessage
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.utils.data.DataArray
+import net.dv8tion.jda.api.utils.data.DataObject
 
 class Ship : AbstractCommand(
     "ship",
@@ -34,12 +34,9 @@ class Ship : AbstractCommand(
 ) {
     // ship message list or map with scores?
     private val shipMessages: Map<Int, String>
-    private val riggedUsers = mapOf<Long, Long>()
+    private val riggedUsers: Map<Long, Long>
 
     init {
-        // use data class?
-        ShipMessage(0, "")
-
         val messagesMap = hashMapOf<Int, String>()
         val json = DataArray.fromJson(this.javaClass.getResourceAsStream("/ship_messages.json"))
 
@@ -50,7 +47,16 @@ class Ship : AbstractCommand(
         }
 
         // turn the map into a read only map
-        shipMessages = messagesMap.toMap()
+        this.shipMessages = messagesMap.toMap()
+
+        val riggedMap = hashMapOf<Long, Long>()
+        val riggedJson = DataObject.fromJson(this.javaClass.getResourceAsStream("/rigged_ships.json"))
+
+        riggedJson.keys().forEach {
+            riggedMap[it.toLong()] = riggedJson.getString(it).toLong()
+        }
+
+        this.riggedUsers = riggedMap.toMap()
     }
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
@@ -88,7 +94,9 @@ class Ship : AbstractCommand(
     }
 
     private fun getMessageFromScore(score: Int): String {
-        return "TODO: REPLACE SHIP MESSAGES WITH CB RELATED ONES"
+        val scoreKey = this.shipMessages.keys.first { score <= it }
+
+        return this.shipMessages[scoreKey] ?: error("Excuse me but how is this even possible?")
     }
 
     private fun getScoreAndMessage(member1: Member, member2: Member): Pair<Int, String> {
