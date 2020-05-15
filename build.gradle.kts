@@ -51,6 +51,8 @@ dependencies {
     implementation(group = "org.reflections", name = "reflections", version = "0.9.12")
     // Http client
     implementation(group = "com.squareup.okhttp3", name = "okhttp", version = "4.5.0")
+    // Json library, ships with JDA but is not in our classpath until we list it here
+    implementation(group = "com.fasterxml.jackson.core", name = "jackson-databind", version = "2.10.1")
 }
 
 tasks {

@@ -18,13 +18,13 @@
 
 package io.github.yuutoproject.yuutobot.commands
 
+import com.fasterxml.jackson.core.json.JsonReadFeature
+import com.fasterxml.jackson.databind.json.JsonMapper
 import com.jagrosh.jdautilities.commons.utils.FinderUtil
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import net.dv8tion.jda.api.utils.data.DataArray
-import net.dv8tion.jda.api.utils.data.DataObject
 
 class Ship : AbstractCommand(
     "ship",
@@ -37,23 +37,32 @@ class Ship : AbstractCommand(
     private val riggedUsers: Map<Long, Long>
 
     init {
-        val messagesMap = hashMapOf<Int, String>()
-        val json = DataArray.fromJson(this.javaClass.getResourceAsStream("/ship_messages.json"))
+        // We're using jackson here so we can allow for quotes in our json
+        val mapper = JsonMapper.builder()
+            .enable(
+                JsonReadFeature.ALLOW_TRAILING_COMMA,
+                JsonReadFeature.ALLOW_JAVA_COMMENTS,
+                JsonReadFeature.ALLOW_YAML_COMMENTS,
+                JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES
+            )
+            .build()
 
-        for (index in 0 until json.length()) {
-            val data = json.getObject(index)
+        // mutable map keeps the order, a hashmap does not
+        val messagesMap = mutableMapOf<Int, String>()
+        val json = mapper.readTree(this.javaClass.getResourceAsStream("/ship_messages.json5"))
 
-            messagesMap[data.getInt("max_score")] = data.getString("message")
+        json.forEach {
+            messagesMap[it.get("max_score").asInt()] = it.get("message").asText()
         }
 
         // turn the map into a read only map
         this.shipMessages = messagesMap.toMap()
 
         val riggedMap = hashMapOf<Long, Long>()
-        val riggedJson = DataObject.fromJson(this.javaClass.getResourceAsStream("/rigged_ships.json"))
+        val riggedJson = mapper.readTree(this.javaClass.getResourceAsStream("/rigged_ships.json5"))
 
-        riggedJson.keys().forEach {
-            riggedMap[it.toLong()] = riggedJson.getString(it).toLong()
+        riggedJson.fieldNames().forEach {
+            riggedMap[it.toLong()] = riggedJson.get(it).asLong()
         }
 
         this.riggedUsers = riggedMap.toMap()
@@ -93,7 +102,7 @@ class Ship : AbstractCommand(
         return (score % 100).toInt()
     }
 
-    private fun getMessageFromScore(score: Int): String {
+    fun getMessageFromScore(score: Int): String {
         val scoreKey = this.shipMessages.keys.first { score <= it }
 
         return this.shipMessages[scoreKey] ?: error("Excuse me but how is this even possible?")
@@ -110,5 +119,13 @@ class Ship : AbstractCommand(
         val message = this.getMessageFromScore(score)
 
         return score to message
+    }
+}
+
+fun main() {
+    val ship = Ship()
+
+    for (i in 0..100) {
+        println("$i - ${ship.getMessageFromScore(i)}")
     }
 }
