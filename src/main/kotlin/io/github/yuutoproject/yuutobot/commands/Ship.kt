@@ -88,7 +88,7 @@ class Ship : AbstractCommand(
     }
 
     private fun getMessageFromScore(score: Int): String {
-        return "TODO: REPLACE SHIP MESSAGES WITH CB RELATED ONES";
+        return "TODO: REPLACE SHIP MESSAGES WITH CB RELATED ONES"
     }
 
     private fun getScoreAndMessage(member1: Member, member2: Member): Pair<Int, String> {
