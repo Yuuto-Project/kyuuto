@@ -37,7 +37,7 @@ class Ship : AbstractCommand(
     private val riggedUsers: Map<Long, Long>
 
     init {
-        // We're using jackson here so we can allow for quotes in our json
+        // We're using jackson here so we can allow for comments in our json
         val mapper = JsonMapper.builder()
             .enable(
                 JsonReadFeature.ALLOW_TRAILING_COMMA,
