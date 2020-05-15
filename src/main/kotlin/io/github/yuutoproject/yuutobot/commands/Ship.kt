@@ -24,11 +24,11 @@ import com.jagrosh.jdautilities.commons.utils.FinderUtil
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import io.github.yuutoproject.yuutobot.extensions.getStaticAvatarUrl
+import io.github.yuutoproject.yuutobot.utils.httpClient
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.internal.utils.IOUtil
-import okhttp3.OkHttpClient
 import okhttp3.Request
 
 class Ship : AbstractCommand(
@@ -165,24 +165,13 @@ class Ship : AbstractCommand(
     private fun fetchUrlBytes(url: String, callback: (ByteArray) -> Unit) {
         val request = Request.Builder()
             .url(url)
+            .header("User-Agent", "Yuuto Discord Bot / 3.0 https://github.com/Yuuto-Project/kyuuto")
             .get()
             .build()
 
-        val response = OkHttpClient().newCall(request).execute()
+        val response = httpClient.newCall(request).execute()
         val bytes = IOUtil.readFully(IOUtil.getBody(response))
 
         callback(bytes)
-    }
-
-    companion object {
-        // main method for good old java in the good old java way
-        @JvmStatic
-        fun main(args: Array<String>) {
-            val ship = Ship()
-
-            for (i in 0..100) {
-                println("$i - ${ship.getMessageFromScore(i)}")
-            }
-        }
     }
 }
