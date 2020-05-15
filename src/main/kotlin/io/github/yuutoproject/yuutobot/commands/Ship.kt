@@ -23,8 +23,13 @@ import com.fasterxml.jackson.databind.json.JsonMapper
 import com.jagrosh.jdautilities.commons.utils.FinderUtil
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
+import io.github.yuutoproject.yuutobot.extensions.getStaticAvatarUrl
+import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.internal.utils.IOUtil
+import okhttp3.OkHttpClient
+import okhttp3.Request
 
 class Ship : AbstractCommand(
     "ship",
@@ -70,11 +75,6 @@ class Ship : AbstractCommand(
     }
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
-        // Get members from JDA_utils search
-        // find a place to store the rigged ships that is not in the jar itself
-        // TODO: (important) change all messages to CB related messages
-        // ...
-
         val channel = event.channel
 
         if (args.size < 2) {
@@ -99,9 +99,21 @@ class Ship : AbstractCommand(
         }
 
         val (score, message) = this.getScoreAndMessage(member1, member2)
+        val member1Avatar = member1.getStaticAvatarUrl()
+        val member2Avatar = member2.getStaticAvatarUrl()
+        val imageUrl = "https://api.alexflipnote.dev/ship?user=$member1Avatar&user2=$member2Avatar"
 
+        fetchUrlBytes(imageUrl) {
+            val embed = EmbedBuilder()
+                .setTitle("${member1.effectiveName} and ${member2.effectiveName}")
+                .addField("Your love score is $score%", message, false)
+                .setImage("attachment://ship.png")
+                .build()
 
-        channel.sendMessage("${member1.user.asTag}x${member2.user.asTag} - $score - $message").queue()
+            channel.sendFile(it, "ship.png")
+                .embed(embed)
+                .queue()
+        }
     }
 
     private fun findMember(input: String, event: GuildMessageReceivedEvent): Member? {
@@ -148,6 +160,18 @@ class Ship : AbstractCommand(
         val message = this.getMessageFromScore(score)
 
         return score to message
+    }
+
+    private fun fetchUrlBytes(url: String, callback: (ByteArray) -> Unit) {
+        val request = Request.Builder()
+            .url(url)
+            .get()
+            .build()
+
+        val response = OkHttpClient().newCall(request).execute()
+        val bytes = IOUtil.readFully(IOUtil.getBody(response))
+
+        callback(bytes)
     }
 
     companion object {
