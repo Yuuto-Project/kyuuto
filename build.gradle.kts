@@ -40,7 +40,9 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.3.5")
     // The discord lib
-    implementation(group = "net.dv8tion", name = "JDA", version = "4.1.1_150")
+    implementation(group = "net.dv8tion", name = "JDA", version = "4.1.1_152") {
+        exclude(module = "opus-java")
+    }
     // dotenv support
     implementation(group = "io.github.cdimascio", name = "java-dotenv", version = "5.1.3")
     // For logging
