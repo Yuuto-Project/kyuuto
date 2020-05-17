@@ -18,18 +18,20 @@
 
 package io.github.yuutoproject.yuutobot.commands
 
-import com.fasterxml.jackson.core.json.JsonReadFeature
-import com.fasterxml.jackson.databind.json.JsonMapper
 import com.jagrosh.jdautilities.commons.utils.FinderUtil
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import io.github.yuutoproject.yuutobot.extensions.getStaticAvatarUrl
+import io.github.yuutoproject.yuutobot.utils.Constants
 import io.github.yuutoproject.yuutobot.utils.httpClient
+import io.github.yuutoproject.yuutobot.utils.jackson
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.internal.utils.IOUtil
 import okhttp3.Request
+import org.slf4j.LoggerFactory
+import java.io.File
 
 class Ship : AbstractCommand(
     "ship",
@@ -37,24 +39,13 @@ class Ship : AbstractCommand(
     "Yuuto mastered the art of shipping users and can now calculate if you and your crush will work out",
     "<user1> <user2>"
 ) {
-    // ship message list or map with scores?
     private val shipMessages: Map<Int, String>
     private val riggedUsers: Map<Long, Long>
 
     init {
-        // We're using jackson here so we can allow for comments in our json
-        val mapper = JsonMapper.builder()
-            .enable(
-                JsonReadFeature.ALLOW_TRAILING_COMMA,
-                JsonReadFeature.ALLOW_JAVA_COMMENTS,
-                JsonReadFeature.ALLOW_YAML_COMMENTS,
-                JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES
-            )
-            .build()
-
         // mutable map keeps the order, a hashmap does not
         val messagesMap = mutableMapOf<Int, String>()
-        val json = mapper.readTree(this.javaClass.getResource("/ship_messages.json5"))
+        val json = jackson.readTree(this.javaClass.getResource("/ship_messages.json5"))
 
         json.forEach {
             messagesMap[it.get("max_score").asInt()] = it.get("message").asText()
@@ -62,23 +53,14 @@ class Ship : AbstractCommand(
 
         // turn the map into a read only map
         this.shipMessages = messagesMap.toMap()
-
-        val riggedMap = hashMapOf<Long, Long>()
-        // TODO: Relocate this
-        val riggedJson = mapper.readTree(this.javaClass.getResource("/rigged_ships.json5"))
-
-        riggedJson.fieldNames().forEach {
-            riggedMap[it.toLong()] = riggedJson.get(it).asLong()
-        }
-
-        this.riggedUsers = riggedMap.toMap()
+        this.riggedUsers = this.loadRiggedShips()
     }
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
         val channel = event.channel
 
         if (args.size < 2) {
-            channel.sendMessage("Missing args").queue()
+            channel.sendMessage("This command requires two arguments: `ship <user1> <user2>`.").queue()
             return
         }
 
@@ -86,7 +68,7 @@ class Ship : AbstractCommand(
         val member1 = this.findMember(name1, event)
 
         if (member1 == null) {
-            channel.sendMessage("Missing member 1").queue()
+            channel.sendMessage("No user found for input $name1").queue()
             return
         }
 
@@ -94,7 +76,7 @@ class Ship : AbstractCommand(
         val member2 = this.findMember(name2, event)
 
         if (member2 == null) {
-            channel.sendMessage("Missing member 2").queue()
+            channel.sendMessage("No user found for input $name2").queue()
             return
         }
 
@@ -132,7 +114,6 @@ class Ship : AbstractCommand(
         val id1 = member1.idLong
         val id2 = member2.idLong
 
-        // May crash due to the map returning null if it doesn't have the key
         return this.riggedUsers[id1] == id2 || this.riggedUsers[id2] == id1
     }
 
@@ -150,6 +131,11 @@ class Ship : AbstractCommand(
     }
 
     private fun getScoreAndMessage(member1: Member, member2: Member): Pair<Int, String> {
+        if (member1 == member2) {
+            // TODO: Eehhhh
+            return 100 to "Who would've thought that you'd like yourself this much"
+        }
+
         if (this.shouldBeRigged(member1, member2)) {
             // We're using the getMessageFromScore method here so it uses the message from the json
             // this way we only have to change the message in one place when we update it
@@ -165,7 +151,7 @@ class Ship : AbstractCommand(
     private fun fetchUrlBytes(url: String, callback: (ByteArray) -> Unit) {
         val request = Request.Builder()
             .url(url)
-            .header("User-Agent", "Yuuto Discord Bot / 3.0 https://github.com/Yuuto-Project/kyuuto")
+            .header("User-Agent", "Yuuto Discord Bot / ${Constants.YUUTO_VERSION} https://github.com/Yuuto-Project/kyuuto")
             .get()
             .build()
 
@@ -173,5 +159,26 @@ class Ship : AbstractCommand(
         val bytes = IOUtil.readFully(IOUtil.getBody(response))
 
         callback(bytes)
+    }
+
+    private fun loadRiggedShips (): Map<Long, Long> {
+        val logger = LoggerFactory.getLogger(this.javaClass)
+        val shipsFile = File("rigged_ships.json5")
+
+        if (!shipsFile.exists()) {
+            logger.warn("Skipping rigged ships as file does not exist")
+            return mapOf()
+        }
+
+        val riggedMap = hashMapOf<Long, Long>()
+        val riggedJson = jackson.readTree(shipsFile)
+
+        riggedJson.fieldNames().forEach {
+            riggedMap[it.toLong()] = riggedJson.get(it).asLong()
+        }
+
+        logger.info("Loaded rigged ships $riggedMap")
+
+        return riggedMap.toMap()
     }
 }

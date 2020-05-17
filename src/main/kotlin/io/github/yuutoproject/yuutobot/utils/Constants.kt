@@ -18,18 +18,8 @@
 
 package io.github.yuutoproject.yuutobot.utils
 
-import com.fasterxml.jackson.core.json.JsonReadFeature
-import com.fasterxml.jackson.databind.json.JsonMapper
-import okhttp3.OkHttpClient
-
-val httpClient = OkHttpClient()
-
-// Special jackson configuration to allow for json and json5 (partially) loading
-val jackson = JsonMapper.builder()
-    .enable(
-        JsonReadFeature.ALLOW_TRAILING_COMMA,
-        JsonReadFeature.ALLOW_JAVA_COMMENTS,
-        JsonReadFeature.ALLOW_YAML_COMMENTS,
-        JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES
-    )
-    .build()
+// This class should only contain static booleans, ints, strings etc (no classes)
+// as they are hardcoded into the code at compile time
+object Constants {
+    const val YUUTO_VERSION = "3.0"
+}
