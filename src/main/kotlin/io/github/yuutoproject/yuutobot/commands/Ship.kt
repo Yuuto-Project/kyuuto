@@ -25,13 +25,13 @@ import io.github.yuutoproject.yuutobot.extensions.getStaticAvatarUrl
 import io.github.yuutoproject.yuutobot.utils.Constants
 import io.github.yuutoproject.yuutobot.utils.httpClient
 import io.github.yuutoproject.yuutobot.utils.jackson
+import java.io.File
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.internal.utils.IOUtil
 import okhttp3.Request
 import org.slf4j.LoggerFactory
-import java.io.File
 
 class Ship : AbstractCommand(
     "ship",
@@ -161,7 +161,7 @@ class Ship : AbstractCommand(
         callback(bytes)
     }
 
-    private fun loadRiggedShips (): Map<Long, Long> {
+    private fun loadRiggedShips(): Map<Long, Long> {
         val logger = LoggerFactory.getLogger(this.javaClass)
         val shipsFile = File("rigged_ships.json5")
 
