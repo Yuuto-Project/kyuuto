@@ -41,6 +41,10 @@ class Ship : AbstractCommand(
 ) {
     private val shipMessages: Map<Int, String>
     private val riggedUsers: Map<Long, Long>
+    private val selfShipMessages = listOf(
+        "Unsurprising, loving yourself is all you do around here.",
+        "Who would've thought that you'd love yourself this much"
+    )
 
     init {
         // mutable map keeps the order, a hashmap does not
@@ -138,8 +142,7 @@ class Ship : AbstractCommand(
 
     private fun getScoreAndMessage(member1: Member, member2: Member): Pair<Int, String> {
         if (member1 == member2) {
-            // TODO: Eehhhh
-            return 100 to "Who would've thought that you'd like yourself this much"
+            return 100 to selfShipMessages.random()
         }
 
         if (this.shouldBeRigged(member1, member2)) {
