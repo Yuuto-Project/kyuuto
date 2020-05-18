@@ -1,12 +1,11 @@
 [
     {
         max_score: 10,
-        // message: "Don't bother with this one. Close your eyes, pick a stranger, and ask them out. Chances are you'll have better luck with them.",
-        message: "This will probably be another Camp Disaster, don't bother with it",
+        message: "This will probably be another Camp Disaster, don't bother with it.",
     },
     {
         max_score: 29,
-        message: "If you're together already, we predict a breakup in 10, 9, 8... You get the picture. If you're not together, run away and stay clear. Sorry, but this ain't gonna work.",
+        message: "Things will work out great between you guys, if you two stay in separate cabins.",
     },
     {
         max_score: 39,
@@ -34,6 +33,6 @@
     },
     {
         max_score: 100,
-        message: "This is a perfect match...",
+        message: "%s and %s are like me and volleyball, a perfect match!",
     },
 ]

@@ -85,7 +85,7 @@ class Ship : AbstractCommand(
         val member2Avatar = member2.getStaticAvatarUrl()
         val imageUrl = "https://api.alexflipnote.dev/ship?user=$member1Avatar&user2=$member2Avatar"
 
-        val parsedMessage = if (message.startsWith("%s")) {
+        val parsedMessage = if (message.contains("%s")) {
             message.format(member1.effectiveName, member2.effectiveName)
         } else {
             message
