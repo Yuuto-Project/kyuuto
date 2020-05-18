@@ -25,7 +25,7 @@
     },
     {
         max_score: 89,
-        message: "{name} and {name2} sitting on a tree, K-I-S-S-I-N-G, First comes love, Then comes marriage, Then comes a baby in a baby carriage. Aww, you're a great match for each other.",
+        message: "%s and %s sitting on a tree, K-I-S-S-I-N-G, First comes love, Then comes marriage, Then comes a baby in a baby carriage. Aww, you're a great match for each other.",
     },
     {
         max_score: 99,

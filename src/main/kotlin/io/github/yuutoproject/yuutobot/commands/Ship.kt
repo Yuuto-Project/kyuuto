@@ -85,10 +85,16 @@ class Ship : AbstractCommand(
         val member2Avatar = member2.getStaticAvatarUrl()
         val imageUrl = "https://api.alexflipnote.dev/ship?user=$member1Avatar&user2=$member2Avatar"
 
+        val parsedMessage = if (message.startsWith("%s")) {
+            message.format(member1.effectiveName, member2.effectiveName)
+        } else {
+            message
+        }
+
         fetchUrlBytes(imageUrl) {
             val embed = EmbedBuilder()
                 .setTitle("${member1.effectiveName} and ${member2.effectiveName}")
-                .addField("Your love score is $score%", message, false)
+                .addField("Your love score is $score%", parsedMessage, false)
                 .setImage("attachment://ship.png")
                 .build()
 
