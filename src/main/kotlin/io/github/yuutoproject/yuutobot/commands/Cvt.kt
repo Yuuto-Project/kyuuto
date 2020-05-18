@@ -21,14 +21,15 @@ package io.github.yuutoproject.yuutobot.commands
 import io.github.yuutoproject.yuutobot.Yuuto
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import kotlin.math.pow
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
 class Cvt : AbstractCommand(
     "cvt",
     CommandCategory.UTILITIES,
-    "Helps converting stuff",
-    "Run `cvt <target unit> <value><origin unit>` to convert `<value>` from `<origin unit>` to `<target unit>`."
+    "Convert different lengths, weights, and temperatures",
+    "<target unit> <value><origin unit>",
+    ""
 ) {
     override val aliases = arrayOf("convert")
 

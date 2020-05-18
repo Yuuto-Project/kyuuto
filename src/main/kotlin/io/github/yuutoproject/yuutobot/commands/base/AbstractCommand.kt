@@ -27,7 +27,8 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
  * - [name]: The name of the command
  * - [category]: The category of the command
  * - [description]: Oneliner that shows in "y!help list"
- * - [usage]: Extended help message for the command with information on how to use it
+ * - [parameters]: Short string of all the parameters the command accepts
+ * - [notes]: Additional notes that the user may have to note
  *
  * Commands can add aliases by overriding the [aliases] prop
  */
@@ -35,7 +36,8 @@ abstract class AbstractCommand(
     val name: String,
     val category: CommandCategory,
     val description: String,
-    val usage: String
+    val parameters: String,
+    val notes: String
 ) {
     /**
      * List of aliases for the command, is empty by default
@@ -45,6 +47,6 @@ abstract class AbstractCommand(
     abstract fun run(args: MutableList<String>, event: GuildMessageReceivedEvent)
 
     override fun toString(): String {
-        return "AbstractCommand(name='$name', category=$category, description='$description', usage='$usage')"
+        return "AbstractCommand(name='$name', category=$category, description='$description', usage='$notes')"
     }
 }

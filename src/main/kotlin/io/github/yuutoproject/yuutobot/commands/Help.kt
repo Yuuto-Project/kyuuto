@@ -26,8 +26,9 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 class Help(private val commandManager: CommandManager) : AbstractCommand(
     "help",
     CommandCategory.INFO,
-    "Get the usage of any other command",
-    "Run `help <command>` to get usage instructions on `<command>`, if it exists. Run `help list` to list possible commands."
+    "Get the usage of any command",
+    "[command]",
+    "`[command]` is the name or alias of the command you need the usage for. Run `help list` to list possible commands"
 ) {
     override val aliases = arrayOf("usage", "commands")
 
@@ -63,10 +64,20 @@ class Help(private val commandManager: CommandManager) : AbstractCommand(
         }
 
         val message = event.channel.sendMessage(
-            "**Category:** ${command.category}\n" +
-                "**Usage for command** `${command.name}`**:**\n\t" +
-                command.usage
+            "**Category:** ${command.category}"
         )
+
+        message.append(
+            if (command.parameters.isNotBlank()) "\n**Usage:** `${commandManager.prefix}${command.name} ${command.parameters}`"
+            else "\n**Usage:** `${commandManager.prefix}${command.name}`"
+        )
+
+        if (command.notes.isNotBlank() || command.description.isNotBlank()) {
+            message.append(
+                "\n**Description:** " +
+                    "${command.description.trim('.', '!')}. ${command.notes.trim('.', '!')}."
+            )
+        }
 
         if (command.aliases.isNotEmpty()) {
             message.append("\n**Aliases:** `${command.aliases.joinToString("`, `")}`")
