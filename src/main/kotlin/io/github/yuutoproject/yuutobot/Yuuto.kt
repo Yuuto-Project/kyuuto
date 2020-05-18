@@ -50,7 +50,7 @@ class Yuuto {
             GatewayIntent.GUILD_MESSAGES,
             GatewayIntent.GUILD_MESSAGE_REACTIONS
         )
-            .addEventListeners(CommandManager())
+            .addEventListeners(Listener())
             .disableCache(ACTIVITY, CLIENT_STATUS, EMOTE, VOICE_STATE)
             .setActivity(Activity.playing("volleyball"))
             .setBulkDeleteSplittingEnabled(false)

@@ -22,28 +22,42 @@ import io.github.yuutoproject.yuutobot.commands.Help
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.reflections.Reflections
 import org.slf4j.LoggerFactory
 import java.lang.reflect.Modifier
 
-class CommandManager : ListenerAdapter() {
+class CommandManager {
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     val commands = hashMapOf<String, AbstractCommand>()
     val aliases = hashMapOf<String, String>()
-
+    
     init {
         loadCommands()
     }
 
-    override fun onReady(event: ReadyEvent) {
-        logger.info("Logged in as {}", event.jda.selfUser.asTag)
+    private fun register(instance: AbstractCommand) {
+        commands[instance.name] = instance
+
+        instance.aliases.forEach { alias ->
+            aliases[alias] = instance.name
+        }
     }
 
-    override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
+    private fun loadCommands() {
+        register(Help(this))
+
+        val reflections = Reflections("io.github.yuutoproject.yuutobot.commands")
+
+        reflections.getSubTypesOf(AbstractCommand::class.java)
+            .filter { !Modifier.isAbstract(it.modifiers) && it.declaredConstructors[0].parameters.isEmpty() }
+            .forEach {
+                register(it.getDeclaredConstructor().newInstance())
+            }
+    }
+
+     fun handleMessage(event: GuildMessageReceivedEvent) {
         val author = event.author
         val content = event.message.contentRaw
         val prefix = Yuuto.config.get("PREFIX", "!")
@@ -84,29 +98,10 @@ class CommandManager : ListenerAdapter() {
             try {
                 command.run(args, event)
             } catch (e: Throwable) {
-                event.channel.sendMessage("${author.asMention}, there was an error trying to execute that command!").queue()
+                event.channel.sendMessage("${author.asMention}, there was an error trying to execute that command!")
+                    .queue()
                 logger.error("Command $commandName failed in ${event.guild} with $args", e)
             }
         }
-    }
-
-    private fun loadCommands() {
-        val help = Help(this)
-        help.aliases.forEach { alias -> aliases[alias] = "help" }
-        commands["help"] = help
-
-        val reflections = Reflections("io.github.yuutoproject.yuutobot.commands")
-
-        reflections.getSubTypesOf(AbstractCommand::class.java)
-            .filter { !Modifier.isAbstract(it.modifiers) && it.declaredConstructors[0].parameters.isEmpty() }
-            .forEach {
-                val command = it.getDeclaredConstructor().newInstance()
-
-                commands[command.name] = command
-
-                command.aliases.forEach { alias ->
-                    aliases[alias] = command.name
-                }
-            }
     }
 }
