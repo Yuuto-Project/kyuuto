@@ -1,7 +1,8 @@
 [
     {
         max_score: 10,
-        message: "Don't bother with this one. Close your eyes, pick a stranger, and ask them out. Chances are you'll have better luck with them.",
+        // message: "Don't bother with this one. Close your eyes, pick a stranger, and ask them out. Chances are you'll have better luck with them.",
+        message: "This will probably be another Camp Disaster, don't bother with it",
     },
     {
         max_score: 29,
