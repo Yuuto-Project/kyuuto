@@ -9,26 +9,32 @@
     },
     {
         max_score: 39,
+        // message: "We hate to be the bearers of bad news, but this relationship has as much chance of working as Angelina and Brad Pitt. Wait, are they still together? Guess you got a shot, but it ain't gonna be easy.",
         message: "We hate to be the bearers of bad news, but this relationship has as much chance of working as Angelina and Brad Pitt. Wait, are they still together? Guess you got a shot, but it ain't gonna be easy.",
     },
     {
         max_score: 49,
+        // message: "Although our sophisticated algorithms say that it won't work out, why not give it a shot? We're sure you can beat probability.",
         message: "Although our sophisticated algorithms say that it won't work out, why not give it a shot? We're sure you can beat probability.",
     },
     {
         max_score: 64,
+        // message: "There's a slim chance this might work. It's gonna be tough, but whatever, YOLO.",
         message: "There's a slim chance this might work. It's gonna be tough, but whatever, YOLO.",
     },
     {
         max_score: 69,
+        // message: "A C- is still a passing grade! Chances are it'll work out. But just barely.",
         message: "A C- is still a passing grade! Chances are it'll work out. But just barely.",
     },
     {
         max_score: 89,
+        // message: "%s and %s sitting on a tree, K-I-S-S-I-N-G, First comes love, Then comes marriage, Then comes a baby in a baby carriage. Aww, you're a great match for each other.",
         message: "%s and %s sitting on a tree, K-I-S-S-I-N-G, First comes love, Then comes marriage, Then comes a baby in a baby carriage. Aww, you're a great match for each other.",
     },
     {
         max_score: 99,
+        // message: "Wow. This is rare. This is a match made in heaven. Go make out, NOW.",
         message: "Wow. This is rare. This is a match made in heaven. Go make out, NOW.",
     },
     {
