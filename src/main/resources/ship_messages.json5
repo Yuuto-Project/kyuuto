@@ -9,24 +9,20 @@
     },
     {
         max_score: 39,
-        // message: "We hate to be the bearers of bad news, but this relationship has as much chance of working as Angelina and Brad Pitt. Wait, are they still together? Guess you got a shot, but it ain't gonna be easy.",
         message: "This will work out just as well as Yuri and Yoshinori",
     },
     {
         // Important: Yuuto is still pessimistic here
         max_score: 49,
-        // message: "Although our sophisticated algorithms say that it won't work out, why not give it a shot? We're sure you can beat probability.",
         message: "My magic beach ball says that you shouldn't count on it.",
     },
     {
         max_score: 64,
-        // message: "There's a slim chance this might work. It's gonna be tough, but whatever, YOLO.",
-        message: "",
+        message: "This might work, it might also not work. All you can do is try.",
     },
     {
         max_score: 68,
-        // message: "A C- is still a passing grade! Chances are it'll work out. But just barely.",
-        message: "",
+        message: "This actually has a chance of working, sit down, grab a glass of water and read the Camp Buddy Journal; Now available for the low price of $24.99 at blitsgames.com",
     },
     {
         // TODO: Probably remove this
@@ -35,13 +31,11 @@
     },
     {
         max_score: 89,
-        // message: "%s and %s sitting on a tree, K-I-S-S-I-N-G, First comes love, Then comes marriage, Then comes a baby in a baby carriage. Aww, you're a great match for each other.",
-        message: "",
+        message: "Hey! You two should kiss!", // Guess the reference :P
     },
     {
         max_score: 99,
-        // message: "Wow. This is rare. This is a match made in heaven. Go make out, NOW.",
-        message: "",
+        message: "Wah this is amazingly rare! Stop whatever you're doing and go make out, NOW!",
     },
     {
         max_score: 100,
