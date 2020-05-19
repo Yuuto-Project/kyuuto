@@ -51,6 +51,14 @@ class Listener : ListenerAdapter() {
             return
         }
 
+        val botcmdsChannel = Yuuto.config["BOTCMDS_${event.guild.idLong}"]
+
+        // If the botcms channel is set for the server and the channel is the channel stored
+        // Commands can be executed, if not this will return
+        if (botcmdsChannel != null && botcmdsChannel != event.channel.id) {
+            return
+        }
+
         val args = content.substring(prefix.length)
             .trim()
             .split("\\s+".toRegex())
