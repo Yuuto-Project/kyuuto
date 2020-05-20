@@ -9,7 +9,7 @@
     },
     {
         max_score: 39,
-        message: "This will work out just as well as Yuri and Yoshinori",
+        message: "This will work out just as well as Yuri and Yoshinori.",
     },
     {
         // Important: Yuuto is still pessimistic here
@@ -22,11 +22,10 @@
     },
     {
         max_score: 68,
-//        message: "This actually has a chance of working, sit down, grab a glass of water and read the Camp Buddy Journal; Now available for the low price of $24.99 at blitsgames.com",
-        message: "I recommend grabbing a glass of water and sitting down for a while, this might actually work.",
+        message: "Breathe in and drink some water, you two might have a future.",
     },
     {
-        // TODO: Probably remove this
+        // TODO: Probably remove this (some day, or not)
         max_score: 69,
         message: "Nice",
     },
