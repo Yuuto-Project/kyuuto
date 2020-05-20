@@ -30,8 +30,12 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.internal.utils.IOUtil
+import okhttp3.Call
+import okhttp3.Callback as OkHttp3Callback
 import okhttp3.Request
+import okhttp3.Response
 import org.slf4j.LoggerFactory
+import java.io.IOException
 
 class Ship : AbstractCommand(
     "ship",
@@ -164,10 +168,19 @@ class Ship : AbstractCommand(
             .get()
             .build()
 
-        val response = httpClient.newCall(request).execute()
-        val bytes = IOUtil.readFully(IOUtil.getBody(response))
+        httpClient.newCall(request).enqueue(object : OkHttp3Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace() // the ugly way
+            }
 
-        callback(bytes)
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    val bytes = IOUtil.readFully(IOUtil.getBody(it))
+
+                    callback(bytes)
+                }
+            }
+        })
     }
 
     private fun loadRiggedShips(): Map<Long, Long> {

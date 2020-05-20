@@ -22,7 +22,8 @@
     },
     {
         max_score: 68,
-        message: "This actually has a chance of working, sit down, grab a glass of water and read the Camp Buddy Journal; Now available for the low price of $24.99 at blitsgames.com",
+//        message: "This actually has a chance of working, sit down, grab a glass of water and read the Camp Buddy Journal; Now available for the low price of $24.99 at blitsgames.com",
+        message: "I recommend grabbing a glass of water and sitting down for a while, this might actually work.",
     },
     {
         // TODO: Probably remove this
