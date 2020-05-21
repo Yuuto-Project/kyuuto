@@ -18,7 +18,6 @@
 
 package io.github.yuutoproject.yuutobot.commands
 
-import io.github.yuutoproject.yuutobot.Yuuto
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import javax.measure.Measure
@@ -56,7 +55,7 @@ class Cvt : AbstractCommand(
                 "Temperature units to convert to are `${temps.joinToString("`, `")}` from those values.\n" +
                     "Height units to convert to are `${lengths.joinToString("`, `")}` from those same values as well.\n" +
                     "Weight units to convert to are `${weights.joinToString("`, `")}` again from the same values.\n" +
-                    "The syntax is `${Yuuto.config["PREFIX"]}cvt <unit-to-convert-to> <value>`"
+                    "The syntax is `cvt <unit-to-convert-to> <value>`"
             ).queue()
             return
         }
