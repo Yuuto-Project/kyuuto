@@ -25,7 +25,6 @@
         message: "This actually has a chance of working, sit down, grab a glass of water and read the Camp Buddy Journal; Now available for the low price of $24.99 at blitsgames.com",
     },
     {
-        // TODO: Probably remove this
         max_score: 69,
         message: "Nice",
     },

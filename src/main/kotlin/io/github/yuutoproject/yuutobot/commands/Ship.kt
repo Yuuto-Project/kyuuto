@@ -170,6 +170,12 @@ class Ship : AbstractCommand(
         callback(bytes)
     }
 
+    /**
+     * Loads in all of the rigged ships from the json file stored IN THE ROOT OF THE CURRENT WORKING DIRECTORY
+     * The format of the file is
+     * { "user id": "user id" }
+     * The order of the ids doesn't matter as the ap checks both ways
+     */
     private fun loadRiggedShips(): Map<Long, Long> {
         val logger = LoggerFactory.getLogger(this.javaClass)
         val shipsFile = File("rigged_ships.json5")
