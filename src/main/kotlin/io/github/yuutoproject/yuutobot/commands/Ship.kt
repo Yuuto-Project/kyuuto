@@ -26,11 +26,15 @@ import io.github.yuutoproject.yuutobot.utils.Constants
 import io.github.yuutoproject.yuutobot.utils.httpClient
 import io.github.yuutoproject.yuutobot.utils.jackson
 import java.io.File
+import java.io.IOException
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.internal.utils.IOUtil
+import okhttp3.Call
+import okhttp3.Callback as OkHttp3Callback
 import okhttp3.Request
+import okhttp3.Response
 import org.slf4j.LoggerFactory
 
 class Ship : AbstractCommand(
@@ -164,10 +168,19 @@ class Ship : AbstractCommand(
             .get()
             .build()
 
-        val response = httpClient.newCall(request).execute()
-        val bytes = IOUtil.readFully(IOUtil.getBody(response))
+        httpClient.newCall(request).enqueue(object : OkHttp3Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace() // the ugly way
+            }
 
-        callback(bytes)
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    val bytes = IOUtil.readFully(IOUtil.getBody(it))
+
+                    callback(bytes)
+                }
+            }
+        })
     }
 
     /**
