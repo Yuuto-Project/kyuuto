@@ -16,14 +16,16 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.github.yuutoproject.yuutobot.commands.base
+package io.github.yuutoproject.yuutobot.extensions
 
-enum class CommandCategory {
-    INFO,
-    FUN,
-    UTIL,
-    OTHER_CATEGORY;
+import net.dv8tion.jda.api.entities.User
 
-    // This is an instance prop
-    val displayName: String = name.toLowerCase()
+fun User.getStaticAvatarUrl(size: Int = 128): String {
+    val url = if (this.avatarId == null) {
+        this.defaultAvatarUrl
+    } else {
+        User.AVATAR_URL.format(this.idLong, this.avatarId, "png")
+    }
+
+    return "$url?size=$size"
 }
