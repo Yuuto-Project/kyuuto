@@ -16,14 +16,20 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.github.yuutoproject.yuutobot.commands.base
+package io.github.yuutoproject.yuutobot.utils
 
-enum class CommandCategory {
-    INFO,
-    FUN,
-    UTIL,
-    OTHER_CATEGORY;
+import com.fasterxml.jackson.core.json.JsonReadFeature
+import com.fasterxml.jackson.databind.json.JsonMapper
+import okhttp3.OkHttpClient
 
-    // This is an instance prop
-    val displayName: String = name.toLowerCase()
-}
+val httpClient = OkHttpClient()
+
+// Special jackson configuration to allow for json and json5 (partially) loading
+val jackson = JsonMapper.builder()
+    .enable(
+        JsonReadFeature.ALLOW_TRAILING_COMMA,
+        JsonReadFeature.ALLOW_JAVA_COMMENTS,
+        JsonReadFeature.ALLOW_YAML_COMMENTS,
+        JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES
+    )
+    .build()
