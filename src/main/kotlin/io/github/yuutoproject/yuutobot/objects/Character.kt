@@ -18,12 +18,24 @@
 
 package io.github.yuutoproject.yuutobot.objects
 
-data class Character(
-    val name: String,
-    val description: String,
-    val age: String,
-    val birthday: String,
-    val animal: String,
-    val color: Int,
-    val emoteId: String
-)
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+import io.github.yuutoproject.yuutobot.Utils
+
+class Character
+@JsonCreator constructor(
+    @JsonProperty("name") val name: String,
+    @JsonProperty("description")val description: String,
+    @JsonProperty("age") val age: String,
+    @JsonProperty("birthday") val birthday: String,
+    @JsonProperty("animal") val animal: String,
+    @JsonProperty("color") private val colorString: String,
+    @JsonProperty("emoteId") val emoteId: String
+) {
+    var color: Int
+    var firstName: String
+    init {
+        color = Utils.hexStringToInt(colorString)
+        firstName = name.split(" ")[0]
+    }
+}
