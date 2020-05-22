@@ -21,6 +21,7 @@ package io.github.yuutoproject.yuutobot.commands
 import com.fasterxml.jackson.core.type.TypeReference
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
+import io.github.yuutoproject.yuutobot.extensions.getStaticAvatarUrl
 import io.github.yuutoproject.yuutobot.objects.Character
 import io.github.yuutoproject.yuutobot.utils.jackson
 import net.dv8tion.jda.api.EmbedBuilder
@@ -41,7 +42,7 @@ class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what rou
         val message = event.message
 
         val messageEmbed = EmbedBuilder()
-            .setAuthor(message.member!!.effectiveName, null, message.author.avatarUrl)
+            .setAuthor(message.member!!.effectiveName, null, message.author.getStaticAvatarUrl())
             .setTitle("Next: ${route.name}, $ending ending")
             .setThumbnail(route.emoteId.asEmoteUrl())
             .setDescription(route.description)
