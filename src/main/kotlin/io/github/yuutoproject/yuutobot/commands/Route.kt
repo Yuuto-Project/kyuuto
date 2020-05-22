@@ -32,11 +32,7 @@ class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what rou
 
     init {
         val json = jackson.readTree(this.javaClass.getResource("/routes.json"))
-
         characters = jackson.readValue(json.traverse(), object : TypeReference<List<Character>>() {})
-        characters.forEach {
-            println(it.name)
-        }
     }
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
