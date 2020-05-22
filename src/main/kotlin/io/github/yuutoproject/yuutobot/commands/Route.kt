@@ -38,7 +38,6 @@ class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what rou
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
         val route = characters.random()
         val ending = endings.random()
-
         val message = event.message
 
         val messageEmbed = EmbedBuilder()
