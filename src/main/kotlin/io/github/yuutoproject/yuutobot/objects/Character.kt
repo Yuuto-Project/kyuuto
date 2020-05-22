@@ -32,10 +32,6 @@ class Character
     @JsonProperty("color") private val colorString: String,
     @JsonProperty("emoteId") val emoteId: String
 ) {
-    var color: Int
-    var firstName: String
-    init {
-        color = Utils.hexStringToInt(colorString)
-        firstName = name.split(" ")[0]
-    }
+    val color = Utils.hexStringToInt(colorString)
+    val firstName = name.split(" ")[0]
 }

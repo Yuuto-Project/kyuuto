@@ -28,12 +28,12 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
 class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what route to play next", "route") {
     private val endings = listOf("perfect", "good", "bad", "worst")
-    private var characters: ArrayList<Character>
+    private val characters: List<Character>
 
     init {
         val json = jackson.readTree(this.javaClass.getResource("/routes.json"))
 
-        characters = jackson.readValue(json.traverse(), object : TypeReference<ArrayList<Character>>() {})
+        characters = jackson.readValue(json.traverse(), object : TypeReference<List<Character>>() {})
         characters.forEach {
             println(it.name)
         }
