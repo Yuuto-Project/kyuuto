@@ -18,21 +18,30 @@
 
 package io.github.yuutoproject.yuutobot.commands
 
+import io.github.yuutoproject.yuutobot.Utils
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import io.github.yuutoproject.yuutobot.objects.Character
+import io.github.yuutoproject.yuutobot.utils.jackson
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import net.dv8tion.jda.api.utils.data.DataArray
 
 class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what route to play next", "route") {
     private val endings = listOf("perfect", "good", "bad", "worst")
     private val characters = arrayListOf<Character>()
 
     init {
-        val charactersArr = DataArray.fromJson(this.javaClass.getResource("/routes.json").readText())
-        for (i in 0 until charactersArr.length()) {
-            characters.add(Character(charactersArr.getObject(i)))
+        val json = jackson.readTree(this.javaClass.getResource("/routes.json"))
+        json.forEach {
+            characters.add(Character(
+                it.get("name").asText(),
+                it.get("description").asText(),
+                it.get("age").asText(),
+                it.get("birthday").asText(),
+                it.get("animal").asText(),
+                Utils.hexStringToInt(it.get("color").asText()),
+                it.get("emoteId").asText()
+            ))
         }
     }
 

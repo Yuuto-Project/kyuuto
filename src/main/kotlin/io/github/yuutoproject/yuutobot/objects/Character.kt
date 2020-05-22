@@ -18,15 +18,12 @@
 
 package io.github.yuutoproject.yuutobot.objects
 
-import io.github.yuutoproject.yuutobot.Utils
-import net.dv8tion.jda.api.utils.data.DataObject
-
-data class Character(val characterObject: DataObject) {
-    val name = characterObject.getString("name")
-    val description = characterObject.getString("description")
-    val age = characterObject.getString("age")
-    val birthday = characterObject.getString("birthday")
-    val animal = characterObject.getString("animal")
-    val color = Utils.hexStringToInt(characterObject.getString("color"))
-    val emoteId = characterObject.getString("emoteId")
-}
+data class Character(
+    val name: String,
+    val description: String,
+    val age: String,
+    val birthday: String,
+    val animal: String,
+    val color: Int,
+    val emoteId: String
+)
