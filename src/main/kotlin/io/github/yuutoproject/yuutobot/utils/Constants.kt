@@ -16,14 +16,10 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.github.yuutoproject.yuutobot.commands.base
+package io.github.yuutoproject.yuutobot.utils
 
-enum class CommandCategory {
-    INFO,
-    FUN,
-    UTIL,
-    OTHER_CATEGORY;
-
-    // This is an instance prop
-    val displayName: String = name.toLowerCase()
+// This class should only contain static booleans, ints, strings etc (no classes)
+// as they are hardcoded into the code at compile time
+object Constants {
+    const val YUUTO_VERSION = "3.0"
 }
