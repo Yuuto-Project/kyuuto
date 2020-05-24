@@ -40,7 +40,11 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.3.5")
     // The discord lib
-    implementation(group = "net.dv8tion", name = "JDA", version = "4.1.1_142")
+    implementation(group = "net.dv8tion", name = "JDA", version = "4.1.1_152") {
+        exclude(module = "opus-java")
+    }
+    // Utils (aka finder util)
+    implementation(group = "com.jagrosh", name = "jda-utilities", version = "3.0.3")
     // dotenv support
     implementation(group = "io.github.cdimascio", name = "java-dotenv", version = "5.1.3")
     // For logging
@@ -49,6 +53,8 @@ dependencies {
     implementation(group = "org.reflections", name = "reflections", version = "0.9.12")
     // Http client
     implementation(group = "com.squareup.okhttp3", name = "okhttp", version = "4.5.0")
+    // Json library, ships with JDA but is not in our classpath until we list it here
+    implementation(group = "com.fasterxml.jackson.core", name = "jackson-databind", version = "2.10.1")
 }
 
 tasks {
