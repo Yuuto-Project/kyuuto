@@ -91,7 +91,7 @@ kotlinter {
     ignoreFailures = false
     indentSize = 4
     reporters = arrayOf("checkstyle", "plain")
-    experimentalRules = false
-    disabledRules = arrayOf("no-wildcard-imports")
+    experimentalRules = true
+    disabledRules = arrayOf("no-wildcard-imports", "experimental:indent")
     fileBatchSize = 30
 }
