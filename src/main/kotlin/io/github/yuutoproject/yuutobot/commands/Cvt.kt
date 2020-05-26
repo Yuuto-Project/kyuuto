@@ -34,7 +34,7 @@ class Cvt : AbstractCommand(
 ) {
     override val aliases = arrayOf("convert")
 
-    private val inputPattern = "(-?[\\d.]+)(\\D{1,2})".toRegex()
+    private val inputPattern = "(-?[\\d.]+)(\\D{1,3})".toRegex()
     private val lengths = arrayOf("mm", "cm", "m", "pc", "pt", "in", "ft", "px")
     private val temps = arrayOf("c", "f", "k")
     private val weights = arrayOf("kg", "lbs")
