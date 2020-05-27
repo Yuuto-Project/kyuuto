@@ -40,7 +40,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.3.5")
     // The discord lib
-    implementation(group = "net.dv8tion", name = "JDA", version = "4.1.1_152") {
+    implementation(group = "net.dv8tion", name = "JDA", version = "4.1.1_154") {
         exclude(module = "opus-java")
     }
     // Utils (aka finder util)
@@ -55,6 +55,8 @@ dependencies {
     implementation(group = "com.squareup.okhttp3", name = "okhttp", version = "4.5.0")
     // Json library, ships with JDA but is not in our classpath until we list it here
     implementation(group = "com.fasterxml.jackson.core", name = "jackson-databind", version = "2.10.1")
+    // For all conversions
+    implementation(group = "org.jscience", name = "jscience", version = "4.3.1")
 }
 
 tasks {
