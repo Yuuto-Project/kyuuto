@@ -33,7 +33,7 @@ class Avatar : AbstractCommand(
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
         var user: User? = event.author
 
-        if (args.size != 0) {
+        if (args.isNotEmpty()) {
             user = findMember(args.joinToString(" "), event)?.user
         }
 
