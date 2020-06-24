@@ -18,9 +18,11 @@
 
 package io.github.yuutoproject.yuutobot.commands
 
-import io.github.yuutoproject.yuutobot.Yuuto
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
+import javax.measure.Measure
+import javax.measure.unit.NonSI.*
+import javax.measure.unit.SI.*
 import kotlin.math.pow
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
@@ -32,18 +34,18 @@ class Cvt : AbstractCommand(
 ) {
     override val aliases = arrayOf("convert")
 
-    private val inputPattern = "(-?[\\d.]+)(\\D{1,2})".toRegex()
+    private val inputPattern = "(-?[\\d.]+)(\\D{1,3})".toRegex()
     private val lengths = arrayOf("mm", "cm", "m", "pc", "pt", "in", "ft", "px")
     private val temps = arrayOf("c", "f", "k")
+    private val weights = arrayOf("kg", "lbs")
 
     // The + sign combines the arrays
-    private val validUnits = temps + lengths
+    private val validUnits = temps + lengths + weights
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
         val channel = event.channel
 
         if (args.isNotEmpty() && args[0].toLowerCase() == "handegg") {
-            // TODO: delete, maybe use flatmap somehow
             channel.sendMessage("Americans call the handegg a football.").queue()
             return
         }
@@ -52,7 +54,8 @@ class Cvt : AbstractCommand(
             channel.sendMessage(
                 "Temperature units to convert to are `${temps.joinToString("`, `")}` from those values.\n" +
                     "Height units to convert to are `${lengths.joinToString("`, `")}` from those same values as well.\n" +
-                    "The syntax is `${Yuuto.config["PREFIX"]}cvt <unit-to-convert-to> <value>`"
+                    "Weight units to convert to are `${weights.joinToString("`, `")}` again from the same values.\n" +
+                    "The syntax is `cvt <unit-to-convert-to> <value>`"
             ).queue()
             return
         }
@@ -75,47 +78,58 @@ class Cvt : AbstractCommand(
         val inputSplit = inputPattern.find(input) ?: return
         // Destructuring the list
         val (_, sourceValue, sourceUnit) = inputSplit.groupValues
+        val srcUnitLower = sourceUnit.toLowerCase()
 
-        if (!sourceUnit.isCompatibleWithUnit(targetUnit)) {
+        if (!srcUnitLower.isCompatibleWithUnit(targetUnit)) {
             channel.sendMessage("<:YoichiLOL:701312070880329800> I wish that that was possible as well mate.").queue()
             return
         }
 
-        val sourceDouble = sourceValue.toDouble()
+        val sourceFloat = sourceValue.toFloat()
 
-        val converted = if (lengths.contains(targetUnit)) {
-            TODO("Length conversion")
-        } else {
-            val kelvin = sourceDouble.toKelvin(sourceUnit)
-
-            if (kelvin < 0 || kelvin > 10F.pow(32F)) {
-                val highLow = if (kelvin < 0) "low" else "high"
-
-                channel.sendMessage("<:HiroOhGod:701312362401103902> Temperatures that $highLow are not possible.")
-                    .queue()
-                return
-            }
-
-            kelvin.toTemp(targetUnit)
+        if ((lengths.contains(targetUnit) || weights.contains(targetUnit)) && sourceFloat < 0) {
+            channel.sendMessage("<:AmaThink:701049739747000371> I don't think that `$input` is possible").queue()
+            return
         }
 
-        // TODO: handle overflow somehow
+        val converted = when {
+            lengths.contains(targetUnit) -> convertLength(sourceFloat, sourceUnit, targetUnit)
+            weights.contains(targetUnit) -> {
+                val source = sourceUnit.toMassUnit()
+                val target = targetUnit.toMassUnit()
+                val converter = source.getConverterTo(target)
+                val measure = Measure.valueOf(sourceFloat, source).doubleValue(source)
 
-        val aboutPrecise = if (sourceUnit == targetUnit) "precisely" else "about"
+                converter.convert(measure).toFloat()
+            }
+            else -> {
+                val kelvin = sourceFloat.toKelvin(srcUnitLower)
+
+                if (kelvin < 0 || kelvin > 10F.pow(32F)) {
+                    val highLow = if (kelvin < 0) "low" else "high"
+
+                    channel.sendMessage("<:HiroOhGod:701312362401103902> Temperatures that $highLow are not possible.")
+                        .queue()
+                    return
+                }
+
+                kelvin.toTemp(targetUnit)
+            }
+        }
+
+        val aboutPrecise = if (srcUnitLower == targetUnit) "precisely" else "about"
 
         channel.sendMessage(
             "<:LeeCute:701312766115315733> According to my calculations, " +
-                "`$sourceDouble${sourceUnit.displayUnit()}` is $aboutPrecise `$converted${targetUnit.displayUnit()}`"
+                "`$sourceFloat${srcUnitLower.displayUnit()}` is $aboutPrecise `$converted${targetUnit.displayUnit()}`"
         )
             .queue()
     }
 
     private fun String.isCompatibleWithUnit(unit: String): Boolean {
-        if (temps.contains(this) && temps.contains(unit)) {
-            return true
-        }
-
-        return lengths.contains(this) && lengths.contains(unit)
+        return temps.contains(this) && temps.contains(unit) ||
+            weights.contains(this) && weights.contains(unit) ||
+            lengths.contains(this) && lengths.contains(unit)
     }
 
     private fun String.displayUnit() = when (this) {
@@ -125,17 +139,48 @@ class Cvt : AbstractCommand(
         else -> this
     }
 
-    private fun Double.toKelvin(srcUnit: String) = when (srcUnit) {
-        "c" -> this + 273.15
-        "f" -> (this - 32) * (5 / 9) + 273.15
+    private fun Float.toKelvin(srcUnit: String) = when (srcUnit) {
+        "c" -> this + 273.15F
+        "f" -> (this - 32F) * (5F / 9F) + 273.15F
         "k" -> this
         else -> throw IllegalArgumentException("Invalid temperature supplied") // Should never happen
     }
 
-    private fun Double.toTemp(targetUnit: String) = when (targetUnit) {
-        "c" -> this - 273.15
-        "f" -> (this - 273.15) * (9 / 5) + 32
+    private fun Float.toTemp(targetUnit: String) = when (targetUnit) {
+        "c" -> this - 273.15F
+        "f" -> (this - 273.15F) * (9F / 5F) + 32F
         "k" -> this
         else -> throw IllegalArgumentException("Invalid temperature supplied") // Should never happen
+    }
+
+    private fun convertLength(num: Float, source: String, target: String): Float {
+        val sourceUnit = source.toLengthUnit()
+        val targetUnit = target.toLengthUnit()
+        val converter = sourceUnit.getConverterTo(targetUnit)
+        val measure = Measure.valueOf(num, sourceUnit).doubleValue(sourceUnit)
+
+        return converter.convert(measure).toFloat()
+    }
+
+    private fun String.toLengthUnit() = when (this) {
+        "mm" -> MILLIMETER
+        "cm" -> CENTIMETER
+        "m" -> METER
+        "km" -> KILOMETER
+
+        "pc" -> POINT.times(12)
+        "pt" -> POINT
+        "in" -> INCH
+        "ft" -> FOOT
+        "px" -> PIXEL
+
+        else -> throw IllegalArgumentException("Unit not found")
+    }
+
+    private fun String.toMassUnit() = when (this) {
+        "kg" -> KILOGRAM
+        "lbs" -> POUND
+
+        else -> throw IllegalArgumentException("Unit not found")
     }
 }

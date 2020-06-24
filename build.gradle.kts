@@ -55,6 +55,8 @@ dependencies {
     implementation(group = "com.squareup.okhttp3", name = "okhttp", version = "4.7.2")
     // Json library, ships with JDA but is not in our classpath until we list it here
     implementation(group = "com.fasterxml.jackson.core", name = "jackson-databind", version = "2.10.1")
+    // For all conversions
+    implementation(group = "org.jscience", name = "jscience", version = "4.3.1")
 }
 
 tasks {
