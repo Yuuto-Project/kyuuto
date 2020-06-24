@@ -22,10 +22,9 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.github.yuutoproject.yuutobot.Utils
 
-class Character
-@JsonCreator constructor(
+class Character @JsonCreator constructor(
     @JsonProperty("name") val name: String,
-    @JsonProperty("description")val description: String,
+    @JsonProperty("description") val description: String,
     @JsonProperty("age") val age: String,
     @JsonProperty("birthday") val birthday: String,
     @JsonProperty("animal") val animal: String,
