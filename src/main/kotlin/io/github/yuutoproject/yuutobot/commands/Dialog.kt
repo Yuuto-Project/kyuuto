@@ -20,13 +20,16 @@ package io.github.yuutoproject.yuutobot.commands
 
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
-import java.io.IOException
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.internal.utils.IOUtil
-import okhttp3.*
-import okhttp3.Callback as OkHttp3Callback
+import okhttp3.Call
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
+import java.io.IOException
+import okhttp3.Callback as OkHttp3Callback
 
 // TODO: get arch to implement the actual command
 class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "does something", "[bg] <char> <text>") {
@@ -36,11 +39,14 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "does something",
         event.channel.sendTyping().queue()
 
         val json = "application/json; charset=utf-8".toMediaType()
-        val body = """{
+        val body =
+            """{
                 "background": "messhall",
                 "character": "knox",
                 "text": "${args.joinToString(" ").replace("\"", "\\\"")}"
-            }""".trimIndent().toRequestBody(json)
+            }"""
+                .trimIndent()
+                .toRequestBody(json)
 
         val request = Request.Builder()
             .url("https://kyuu.to/dialog")

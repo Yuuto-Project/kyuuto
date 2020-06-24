@@ -20,11 +20,11 @@ package io.github.yuutoproject.yuutobot.commands
 
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import javax.measure.Measure
 import javax.measure.unit.NonSI.*
 import javax.measure.unit.SI.*
 import kotlin.math.pow
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
 class Cvt : AbstractCommand(
     "cvt",
