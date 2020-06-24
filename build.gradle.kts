@@ -22,8 +22,8 @@ plugins {
     idea
     application
     kotlin("jvm") version "1.3.72"
-    id("org.jmailen.kotlinter") version "2.3.2"
-    id("com.github.johnrengelman.shadow") version "5.2.0"
+    id("org.jmailen.kotlinter") version "2.4.1"
+    id("com.github.johnrengelman.shadow") version "6.0.0"
 }
 
 project.group = "io.github.yuutoproject"
@@ -38,13 +38,13 @@ repositories {
 dependencies {
     // Kotlin STD and other kotlin stuff
     implementation(kotlin("stdlib-jdk8"))
-    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.3.5")
+    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.3.7")
     // The discord lib
-    implementation(group = "net.dv8tion", name = "JDA", version = "4.1.1_152") {
+    implementation(group = "net.dv8tion", name = "JDA", version = "4.1.1_165") {
         exclude(module = "opus-java")
     }
     // Utils (aka finder util)
-    implementation(group = "com.jagrosh", name = "jda-utilities", version = "3.0.3")
+    implementation(group = "com.jagrosh", name = "jda-utilities", version = "3.0.4")
     // dotenv support
     implementation(group = "io.github.cdimascio", name = "java-dotenv", version = "5.1.3")
     // For logging
@@ -52,7 +52,7 @@ dependencies {
     // For loading the commands (super small lib)
     implementation(group = "org.reflections", name = "reflections", version = "0.9.12")
     // Http client
-    implementation(group = "com.squareup.okhttp3", name = "okhttp", version = "4.5.0")
+    implementation(group = "com.squareup.okhttp3", name = "okhttp", version = "4.7.2")
     // Json library, ships with JDA but is not in our classpath until we list it here
     implementation(group = "com.fasterxml.jackson.core", name = "jackson-databind", version = "2.10.1")
 }
@@ -65,7 +65,7 @@ tasks {
         kotlinOptions.jvmTarget = "11"
     }
     wrapper {
-        gradleVersion = "6.3"
+        gradleVersion = "6.5"
         distributionType = DistributionType.ALL
     }
     shadowJar {
