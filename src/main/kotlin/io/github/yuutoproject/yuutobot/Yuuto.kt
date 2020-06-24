@@ -66,9 +66,7 @@ class Yuuto {
 
     private fun startGameTimer() {
         gameService.scheduleAtFixedRate(
-            {
-                jda.presence.activity = Activity.playing("volleyball")
-            },
+            { jda.presence.activity = Activity.playing("volleyball") },
             1, 1, TimeUnit.DAYS
         )
     }
