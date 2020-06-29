@@ -18,11 +18,18 @@
 
 package io.github.yuutoproject.yuutobot.commands
 
-import io.github.yuutoproject.owoify.OwoifyLevel
-import io.github.yuutoproject.owoify.owoify
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
+import io.github.yuutoproject.yuutobot.utils.Constants
+import io.github.yuutoproject.yuutobot.utils.httpClient
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import okhttp3.Call
+import okhttp3.Request
+import okhttp3.Response
+import java.io.File
+import java.io.IOException
+import java.util.*
+import okhttp3.Callback as OkHttp3Callback
 
 class Owoify : AbstractCommand(
     "owoify",
@@ -31,6 +38,11 @@ class Owoify : AbstractCommand(
     "Yuuto can turn owoify your text! (whatever that means)",
     "owoify <text>"
 ) {
+    private val levels = listOf("uwu", "uvu", "owo")
+
+    init {
+        downloadFile()
+    }
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
         if(args.size == 0){
@@ -38,13 +50,56 @@ class Owoify : AbstractCommand(
             return;
         }
 
-        val difficulty = when(args[0].toLowerCase()){
-            "uwu" -> OwoifyLevel.Uwu
-            "uvu" -> OwoifyLevel.Uvu
-            else ->  OwoifyLevel.Owo
+        val level = args.removeAt(0).toLowerCase()
+
+        if (!levels.contains(level)) {
+            return
         }
 
-        val owoifiedText = owoify(args.joinToString(" "), difficulty)
-        event.channel.sendMessage(owoifiedText).queue()
+        Runtime.getRuntime()
+            .exec("""node $FILE_NAME $level "${args.joinToString(" ")}" """)
+            .inputStream.use { s ->
+            Scanner(s).use { scanner ->
+                val output = buildString {
+                    while (scanner.hasNextLine()) {
+                        appendln(scanner.nextLine())
+                    }
+                }
+
+                println(output)
+            }
+        }
+    }
+
+    private fun downloadFile() {
+        val file = File(FILE_NAME)
+
+        if (file.exists()) {
+            println("File exists")
+            return
+        }
+
+        val request = Request.Builder()
+            .url("https://raw.githubusercontent.com/Yuuto-Project/owo-cli/master/dist/owoify.bundle.js")
+            .header("User-Agent", "Yuuto Discord Bot / ${Constants.YUUTO_VERSION} https://github.com/Yuuto-Project/kyuuto")
+            .get()
+            .build()
+
+        httpClient.newCall(request).enqueue(object : OkHttp3Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                println("Downloaded file")
+                file.writer().use {
+                    it.write(response.body!!.string())
+                }
+            }
+        })
+    }
+
+    companion object {
+        const val FILE_NAME = "owoify.bundle.js"
     }
 }
