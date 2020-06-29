@@ -20,25 +20,19 @@ package io.github.yuutoproject.yuutobot.commands
 
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
-import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
-class Law : AbstractCommand("law", CommandCategory.INFO, "Shows the buddy law", "law") {
-    override val aliases = arrayOf("buddylaw")
-
+class Enlarge : AbstractCommand("enlarge", CommandCategory.UTIL, "Returns an enlarged emote", "Run `enlarge <emote>` to get the full link to `<emote>` at a large size") {
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
-        val lawEmbed = EmbedBuilder()
-            .setColor(0xFF93CE)
-            .setTitle("The Buddy Law")
-            .setDescription(
-                """
-                |1) A buddy should be kind, helpful and trustworthy to each other!
-                |2) A buddy must be always ready for anything!
-                |3) A buddy should always show a bright smile on his face!
-                |||4) We leave no buddy behind!||
-                """.trimMargin()
-            )
+        val emotes = event.message.emotes
 
-        event.channel.sendMessage(lawEmbed.build()).queue()
+        if (emotes.isEmpty()) {
+            event.channel.sendMessage("Sorry, but you need to provide me an emote to use this command~!").queue()
+            return
+        }
+
+        val emoteLink = emotes.first().imageUrl
+
+        event.channel.sendMessage("${event.author.asMention}, here you go~!\n$emoteLink").queue()
     }
 }

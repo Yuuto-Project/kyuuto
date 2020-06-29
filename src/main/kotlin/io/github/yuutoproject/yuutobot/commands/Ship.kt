@@ -18,24 +18,24 @@
 
 package io.github.yuutoproject.yuutobot.commands
 
-import com.jagrosh.jdautilities.commons.utils.FinderUtil
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import io.github.yuutoproject.yuutobot.extensions.getStaticAvatarUrl
 import io.github.yuutoproject.yuutobot.utils.Constants
+import io.github.yuutoproject.yuutobot.utils.findMember
 import io.github.yuutoproject.yuutobot.utils.httpClient
 import io.github.yuutoproject.yuutobot.utils.jackson
-import java.io.File
-import java.io.IOException
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.internal.utils.IOUtil
 import okhttp3.Call
-import okhttp3.Callback as OkHttp3Callback
 import okhttp3.Request
 import okhttp3.Response
 import org.slf4j.LoggerFactory
+import java.io.File
+import java.io.IOException
+import okhttp3.Callback as OkHttp3Callback
 
 class Ship : AbstractCommand(
     "ship",
@@ -73,7 +73,7 @@ class Ship : AbstractCommand(
         }
 
         val name1 = args[0]
-        val member1 = this.findMember(name1, event)
+        val member1 = findMember(name1, event)
 
         if (member1 == null) {
             channel.sendMessage("No user found for input $name1").queue()
@@ -81,7 +81,7 @@ class Ship : AbstractCommand(
         }
 
         val name2 = args[1]
-        val member2 = this.findMember(name2, event)
+        val member2 = findMember(name2, event)
 
         if (member2 == null) {
             channel.sendMessage("No user found for input $name2").queue()
@@ -110,18 +110,6 @@ class Ship : AbstractCommand(
                 .embed(embed)
                 .queue()
         }
-    }
-
-    private fun findMember(input: String, event: GuildMessageReceivedEvent): Member? {
-        val foundMembers = FinderUtil.findMembers(input, event.guild)
-
-        if (foundMembers.isEmpty()) {
-            return null
-        }
-
-        // why not "?: null"
-        // Well java is fun and will throw an index out of bounds exception if there is no first element
-        return foundMembers[0]
     }
 
     private fun shouldBeRigged(member1: Member, member2: Member): Boolean {
