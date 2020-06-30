@@ -20,8 +20,8 @@ package io.github.yuutoproject.yuutobot.commands
 
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
+import io.github.yuutoproject.yuutobot.extensions.applyDefaults
 import io.github.yuutoproject.yuutobot.extensions.getStaticAvatarUrl
-import io.github.yuutoproject.yuutobot.utils.Constants
 import io.github.yuutoproject.yuutobot.utils.findMember
 import io.github.yuutoproject.yuutobot.utils.httpClient
 import io.github.yuutoproject.yuutobot.utils.jackson
@@ -150,9 +150,8 @@ class Ship : AbstractCommand(
 
     private fun fetchUrlBytes(url: String, callback: (ByteArray) -> Unit) {
         val request = Request.Builder()
+            .applyDefaults()
             .url(url)
-            .header("User-Agent", "Yuuto Discord Bot / ${Constants.YUUTO_VERSION} https://github.com/Yuuto-Project/kyuuto")
-            .get()
             .build()
 
         httpClient.newCall(request).enqueue(object : OkHttp3Callback {

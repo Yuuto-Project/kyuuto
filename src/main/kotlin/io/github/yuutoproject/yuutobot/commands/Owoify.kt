@@ -20,10 +20,11 @@ package io.github.yuutoproject.yuutobot.commands
 
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
-import io.github.yuutoproject.yuutobot.utils.Constants
+import io.github.yuutoproject.yuutobot.extensions.applyDefaults
 import io.github.yuutoproject.yuutobot.utils.httpClient
 import io.github.yuutoproject.yuutobot.utils.jackson
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.utils.MarkdownSanitizer
 import okhttp3.Request
 import java.io.File
 import java.util.*
@@ -33,9 +34,9 @@ class Owoify : AbstractCommand(
     CommandCategory.FUN,
     // TODO: Change this description
     "Yuuto can turn owoify your text! (whatever that means)",
-    "owoify <text>"
+    "owoify [level] <text>"
 ) {
-    private val levels = listOf("uwu", "uvu", "owo")
+    private val levels = listOf("easy", "medium", "hard")
 
     init {
         downloadFile()
@@ -47,15 +48,28 @@ class Owoify : AbstractCommand(
             return
         }
 
-        val level = args.removeAt(0).toLowerCase()
+        val level = if (levels.contains(args[0].toLowerCase())) {
+            when (args.removeAt(0).toLowerCase()) {
+                "hard" -> "uvu"
+                "medium" -> "uwu"
+                else -> "owo"
+            }
+        } else {
+            "owo"
+        }
 
-        if (!levels.contains(level)) {
+        val input = args.joinToString(" ")
+
+        if (input.length > 1000) {
+            event.channel.sendMessage("Sorry, but the character limit is 1000~!").queue()
             return
         }
 
-        val converted = runOwo(level, args.joinToString(" "))
+        val converted = MarkdownSanitizer.escape(runOwo(level, input).replace("`", "\\`"))
 
-        event.channel.sendMessage(converted).queue()
+        event.channel.sendMessage(
+            "OwO-ified for ${event.author.asMention}~!\n\n${converted}"
+        ).queue()
     }
 
     private fun runOwo(level: String, message: String): String {
@@ -81,12 +95,8 @@ class Owoify : AbstractCommand(
         }
 
         val findRelease = Request.Builder()
+            .applyDefaults()
             .url("https://api.github.com/repos/Yuuto-Project/owo-cli/releases/latest")
-            .header(
-                "User-Agent",
-                "Yuuto Discord Bot / ${Constants.YUUTO_VERSION} https://github.com/Yuuto-Project/kyuuto"
-            )
-            .get()
             .build()
 
         httpClient.newCall(findRelease).execute().use { res ->
@@ -96,12 +106,8 @@ class Owoify : AbstractCommand(
             logger.info("Downloading owoify from $downLoadUrl")
 
             val download = Request.Builder()
+                .applyDefaults()
                 .url(downLoadUrl)
-                .header(
-                    "User-Agent",
-                    "Yuuto Discord Bot / ${Constants.YUUTO_VERSION} https://github.com/Yuuto-Project/kyuuto"
-                )
-                .get()
                 .build()
 
             httpClient.newCall(download).execute().use { response ->
