@@ -20,25 +20,28 @@ package io.github.yuutoproject.yuutobot.commands
 
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
-import net.dv8tion.jda.api.EmbedBuilder
+import io.github.yuutoproject.yuutobot.utils.findMember
+import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
-class Law : AbstractCommand("law", CommandCategory.INFO, "Shows the buddy law", "law") {
-    override val aliases = arrayOf("buddylaw")
-
+class Avatar : AbstractCommand(
+    "avatar",
+    CommandCategory.UTIL,
+    "Gets your own or someone's avatar",
+    "avatar or avatar <user>"
+) {
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
-        val lawEmbed = EmbedBuilder()
-            .setColor(0xFF93CE)
-            .setTitle("The Buddy Law")
-            .setDescription(
-                """
-                |1) A buddy should be kind, helpful and trustworthy to each other!
-                |2) A buddy must be always ready for anything!
-                |3) A buddy should always show a bright smile on his face!
-                |||4) We leave no buddy behind!||
-                """.trimMargin()
-            )
+        var user: User? = event.author
 
-        event.channel.sendMessage(lawEmbed.build()).queue()
+        if (args.isNotEmpty()) {
+            user = findMember(args.joinToString(" "), event)?.user
+        }
+
+        if (user == null) {
+            event.channel.sendMessage("${event.author.asMention} Sorry, but I can't find that user").queue()
+            return
+        }
+
+        event.channel.sendMessage("${event.author.asMention}, Here ya go~!\n" + user.effectiveAvatarUrl + "?size=2048").queue()
     }
 }
