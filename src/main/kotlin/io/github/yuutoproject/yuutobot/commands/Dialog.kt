@@ -25,17 +25,17 @@ import io.github.yuutoproject.yuutobot.utils.EMOJI_REGEX
 import io.github.yuutoproject.yuutobot.utils.NONASCII_REGEX
 import io.github.yuutoproject.yuutobot.utils.httpClient
 import io.github.yuutoproject.yuutobot.utils.jackson
-import java.io.IOException
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.utils.data.DataObject
 import net.dv8tion.jda.internal.utils.IOUtil
 import okhttp3.Call
-import okhttp3.Callback as OkHttp3Callback
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.slf4j.LoggerFactory
+import java.io.IOException
+import okhttp3.Callback as OkHttp3Callback
 
 class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an image of a character in Camp Buddy saying anything you want", "[bg] <char> <text>") {
     private val logger = LoggerFactory.getLogger(this.javaClass)
