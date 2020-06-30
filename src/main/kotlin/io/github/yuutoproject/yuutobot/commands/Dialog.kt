@@ -18,19 +18,23 @@
 
 package io.github.yuutoproject.yuutobot.commands
 
+import com.fasterxml.jackson.core.type.TypeReference
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import io.github.yuutoproject.yuutobot.utils.EMOJI_REGEX
 import io.github.yuutoproject.yuutobot.utils.NONASCII_REGEX
 import io.github.yuutoproject.yuutobot.utils.httpClient
+import io.github.yuutoproject.yuutobot.utils.jackson
 import java.io.IOException
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.utils.data.DataObject
 import net.dv8tion.jda.internal.utils.IOUtil
-import okhttp3.*
+import okhttp3.Call
 import okhttp3.Callback as OkHttp3Callback
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
 import org.slf4j.LoggerFactory
 
 class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an image of a character in Camp Buddy saying anything you want", "[bg] <char> <text>") {
@@ -39,7 +43,7 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an ima
     @Suppress("UNCHECKED_CAST")
     private fun getBackgroundsAndCharacters(): Pair<List<String>, List<String>> {
         val request = Request.Builder()
-            .url("https://yuuto.dunctebot.com/info")
+            .url("https://kyuu.to/info")
             .get()
             .build()
 
@@ -47,10 +51,11 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an ima
             if (response.code != 200) {
                 throw Exception("Failed to sync backgrounds and characters with API")
             }
-            val json = DataObject.fromJson(IOUtil.readFully(IOUtil.getBody(response)))
+            val json = jackson.readTree(IOUtil.readFully(IOUtil.getBody(response)))
+
             return Pair(
-                json.getArray("backgrounds").toList() as List<String>,
-                json.getArray("characters").toList() as List<String>
+                jackson.readValue(json["backgrounds"].traverse(), object : TypeReference<List<String>>() {}),
+                jackson.readValue(json["characters"].traverse(), object : TypeReference<List<String>>() {})
             )
         }
     }
@@ -68,7 +73,7 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an ima
         val now = System.currentTimeMillis()
 
         if (args.count() < 2) {
-            event.channel.sendMessage("This command requires two arguments : `dialog [background] <character> <text>` ([] is optional)").queue()
+            event.channel.sendMessage("This command requires at least two arguments : `dialog [background] <character> <text>` ([] is optional)").queue()
             return
         }
 
@@ -83,7 +88,7 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an ima
         }
 
         if (!backgrounds.contains(background)) {
-            event.channel.sendMessage("Sorry but I couldn't find `$background` as a location\nAvailable backgrounds are: $backgroundsString").queue()
+            event.channel.sendMessage("Sorry, but I couldn't find `$background` as a location\nAvailable backgrounds are: $backgroundsString").queue()
             return
         }
 
@@ -100,7 +105,7 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an ima
         val text = args.joinToString(" ").replace("/[‘’]/g".toRegex(), "'")
 
         if (text.length > 140) {
-            event.channel.sendMessage("Sorry, the message limit is 140 characters <:hiroJey:692008426842226708>").queue()
+            event.channel.sendMessage("Sorry, but the message limit is 140 characters <:hiroJey:692008426842226708>").queue()
             return
         }
 
@@ -109,7 +114,7 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an ima
             EMOJI_REGEX.containsMatchIn(text) ||
             NONASCII_REGEX.containsMatchIn(text)
         ) {
-            event.channel.sendMessage("Sorry, I can't display emotes, mentions, or non-latin characters").queue()
+            event.channel.sendMessage("Sorry, but I can't display emotes, mentions, or non-latin characters").queue()
             return
         }
 
