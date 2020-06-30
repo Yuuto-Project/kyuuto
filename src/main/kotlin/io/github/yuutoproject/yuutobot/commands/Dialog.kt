@@ -40,29 +40,15 @@ import org.slf4j.LoggerFactory
 class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an image of a character in Camp Buddy saying anything you want", "[bg] <char> <text>") {
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    @Suppress("UNCHECKED_CAST")
-    private fun getBackgroundsAndCharacters(): Pair<List<String>, List<String>> {
-        val request = Request.Builder()
-            .url("https://kyuu.to/info")
-            .get()
-            .build()
+    private val backgrounds: List<String>
+    private val characters: List<String>
 
-        httpClient.newCall(request).execute().use { response ->
-            if (response.code != 200) {
-                throw Exception("Failed to sync backgrounds and characters with API")
-            }
-            val json = jackson.readTree(IOUtil.readFully(IOUtil.getBody(response)))
+    init {
+        val bgAndChars = getBackgroundsAndCharacters()
 
-            return Pair(
-                jackson.readValue(json["backgrounds"].traverse(), object : TypeReference<List<String>>() {}),
-                jackson.readValue(json["characters"].traverse(), object : TypeReference<List<String>>() {})
-            )
-        }
+        backgrounds = bgAndChars.first
+        characters = bgAndChars.second
     }
-
-    private val bgAndChars = getBackgroundsAndCharacters()
-    private val backgrounds = bgAndChars.first
-    private val characters = bgAndChars.second
 
     private val backgroundsString = "`${backgrounds.joinToString("`, `")}`"
     private val charactersString = "`${characters.joinToString("`, `")}`"
@@ -161,5 +147,24 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an ima
                 logger.info("Generated image for $character at $background, took ${System.currentTimeMillis() - now}ms")
             }
         })
+    }
+
+    private fun getBackgroundsAndCharacters(): Pair<List<String>, List<String>> {
+        val request = Request.Builder()
+            .url("https://kyuu.to/info")
+            .get()
+            .build()
+
+        httpClient.newCall(request).execute().use { response ->
+            if (response.code != 200) {
+                throw Exception("Failed to sync backgrounds and characters with API")
+            }
+            val json = jackson.readTree(IOUtil.readFully(IOUtil.getBody(response)))
+
+            return Pair(
+                jackson.readValue(json["backgrounds"].traverse(), object : TypeReference<List<String>>() {}),
+                jackson.readValue(json["characters"].traverse(), object : TypeReference<List<String>>() {})
+            )
+        }
     }
 }
