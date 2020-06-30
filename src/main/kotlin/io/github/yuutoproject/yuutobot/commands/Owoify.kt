@@ -22,14 +22,11 @@ import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import io.github.yuutoproject.yuutobot.utils.Constants
 import io.github.yuutoproject.yuutobot.utils.httpClient
+import io.github.yuutoproject.yuutobot.utils.jackson
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import okhttp3.Call
 import okhttp3.Request
-import okhttp3.Response
 import java.io.File
-import java.io.IOException
 import java.util.*
-import okhttp3.Callback as OkHttp3Callback
 
 class Owoify : AbstractCommand(
     "owoify",
@@ -66,15 +63,11 @@ class Owoify : AbstractCommand(
             .start()
             .inputStream.use { s ->
                 Scanner(s).use { scanner ->
-                    val output = buildString {
+                    return buildString {
                         while (scanner.hasNextLine()) {
                             appendln(scanner.nextLine())
                         }
                     }
-
-                    println(output)
-
-                    return output
                 }
             }
     }
@@ -87,8 +80,8 @@ class Owoify : AbstractCommand(
             return
         }
 
-        val request = Request.Builder()
-            .url("https://raw.githubusercontent.com/Yuuto-Project/owo-cli/master/dist/$FILE_NAME?r=${System.currentTimeMillis()}")
+        val findRelease = Request.Builder()
+            .url("https://api.github.com/repos/Yuuto-Project/owo-cli/releases/latest")
             .header(
                 "User-Agent",
                 "Yuuto Discord Bot / ${Constants.YUUTO_VERSION} https://github.com/Yuuto-Project/kyuuto"
@@ -96,18 +89,27 @@ class Owoify : AbstractCommand(
             .get()
             .build()
 
-        httpClient.newCall(request).enqueue(object : OkHttp3Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
-            }
+        httpClient.newCall(findRelease).execute().use { res ->
+            val json = jackson.readTree(res.body!!.byteStream())
+            val downLoadUrl = json["assets"][0]["browser_download_url"].asText()
 
-            override fun onResponse(call: Call, response: Response) {
-                println("Downloaded file")
+            logger.info("Downloading owoify from $downLoadUrl")
+
+            val download = Request.Builder()
+                .url(downLoadUrl)
+                .header(
+                    "User-Agent",
+                    "Yuuto Discord Bot / ${Constants.YUUTO_VERSION} https://github.com/Yuuto-Project/kyuuto"
+                )
+                .get()
+                .build()
+
+            httpClient.newCall(download).execute().use { response ->
                 file.writer().use {
                     it.write(response.body!!.string())
                 }
             }
-        })
+        }
     }
 
     companion object {
