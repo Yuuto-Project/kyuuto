@@ -22,6 +22,7 @@ enum class CommandCategory {
     INFO,
     FUN,
     UTIL,
+    GAME,
     OTHER_CATEGORY;
 
     // This is an instance prop
