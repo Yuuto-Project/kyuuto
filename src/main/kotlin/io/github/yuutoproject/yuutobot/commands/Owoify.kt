@@ -68,7 +68,7 @@ class Owoify : AbstractCommand(
         val converted = MarkdownSanitizer.escape(runOwo(level, input).replace("`", "\\`"))
 
         event.channel.sendMessage(
-            "OwO-ified for ${event.author.asMention}~!\n\n${converted}"
+            "OwO-ified for ${event.author.asMention}~!\n\n$converted"
         ).queue()
     }
 
