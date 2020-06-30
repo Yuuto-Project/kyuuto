@@ -34,7 +34,7 @@ import okhttp3.Callback as OkHttp3Callback
 class Owoify : AbstractCommand(
     "owoify",
     CommandCategory.FUN,
-    //TODO: Change this description
+    // TODO: Change this description
     "Yuuto can turn owoify your text! (whatever that means)",
     "owoify <text>"
 ) {
@@ -45,9 +45,9 @@ class Owoify : AbstractCommand(
     }
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
-        if(args.size == 0){
+        if (args.size == 0) {
             event.channel.sendMessage("Sorry, but you need to provide me a message to owoify").queue()
-            return;
+            return
         }
 
         val level = args.removeAt(0).toLowerCase()
@@ -56,19 +56,27 @@ class Owoify : AbstractCommand(
             return
         }
 
-        Runtime.getRuntime()
-            .exec("""node $FILE_NAME $level "${args.joinToString(" ")}" """)
-            .inputStream.use { s ->
-            Scanner(s).use { scanner ->
-                val output = buildString {
-                    while (scanner.hasNextLine()) {
-                        appendln(scanner.nextLine())
-                    }
-                }
+        val converted = runOwo(level, args.joinToString(" "))
 
-                println(output)
+        event.channel.sendMessage(converted).queue()
+    }
+
+    private fun runOwo(level: String, message: String): String {
+        ProcessBuilder("node", FILE_NAME, level, message)
+            .start()
+            .inputStream.use { s ->
+                Scanner(s).use { scanner ->
+                    val output = buildString {
+                        while (scanner.hasNextLine()) {
+                            appendln(scanner.nextLine())
+                        }
+                    }
+
+                    println(output)
+
+                    return output
+                }
             }
-        }
     }
 
     private fun downloadFile() {
@@ -80,8 +88,11 @@ class Owoify : AbstractCommand(
         }
 
         val request = Request.Builder()
-            .url("https://raw.githubusercontent.com/Yuuto-Project/owo-cli/master/dist/owoify.bundle.js")
-            .header("User-Agent", "Yuuto Discord Bot / ${Constants.YUUTO_VERSION} https://github.com/Yuuto-Project/kyuuto")
+            .url("https://raw.githubusercontent.com/Yuuto-Project/owo-cli/master/dist/$FILE_NAME?r=${System.currentTimeMillis()}")
+            .header(
+                "User-Agent",
+                "Yuuto Discord Bot / ${Constants.YUUTO_VERSION} https://github.com/Yuuto-Project/kyuuto"
+            )
             .get()
             .build()
 
