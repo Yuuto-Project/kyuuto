@@ -18,13 +18,15 @@
 
 package io.github.yuutoproject.yuutobot.commands
 
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.core.type.TypeReference
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
+import io.github.yuutoproject.yuutobot.utils.jackson
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
-import net.dv8tion.jda.api.entities.Emote
 import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent
@@ -52,6 +54,13 @@ class MinigameListener(val minigame: Minigame) : ListenerAdapter() {
     }
 }
 
+class Question @JsonCreator constructor(
+    @JsonProperty("type") val type: String,
+    @JsonProperty("question") val question: String,
+    @JsonProperty("answers") val answers: MutableList<String>,
+    @JsonProperty("wrong") val wrong: List<String>
+)
+
 class Minigame : AbstractCommand(
     "minigame",
     CommandCategory.GAME,
@@ -61,48 +70,56 @@ class Minigame : AbstractCommand(
     var state = State.OFF
     var players = mutableMapOf<User, Int>()
     var countdown = 0
-    lateinit var startingMessage: Message
-    var questions = null
-    var currentQuestion = null
-    var answers = null
     var rounds = 0
     var timer = System.currentTimeMillis()
-    
+
+    lateinit var startingMessage: Message
+    lateinit var questions: MutableList<Question>
+
+    lateinit var currentQuestion: Question
+    lateinit var answers: MutableList<String>
+
     val messageListener = MinigameListener(this)
-    
+
+    fun getShuffledQuestions(): MutableList<Question> {
+        val json = jackson.readTree(this.javaClass.getResource("/minigame.json"))
+        val questions = jackson.readValue(json.traverse(), object : TypeReference<MutableList<Question>>() {})
+        questions.shuffle()
+        return questions
+    }
+
     fun initialize() {
         state = State.OFF
-        players = mutableMapOf<User, Int>()
+        players = mutableMapOf()
         countdown = 0
-        questions = null
-        currentQuestion = null
-        answers = null
+        questions = getShuffledQuestions()
         rounds = 0
         timer = System.currentTimeMillis()
     }
-    
+
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
         if (
             state == State.IN_PROGRESS &&
-                args[0] == "skip" &&
-                players.contains(event.author)
-            ) {
+            args.size > 0 &&
+            args[0] == "skip" &&
+            players.contains(event.author)
+        ) {
             event.channel.sendMessage("Skipping the question...").queue()
-//            progress()
+            progress(event.jda)
             return
         }
 
         if (
             state == State.IN_PROGRESS &&
             System.currentTimeMillis() - timer > 3000
-            ) {
-            event.channel.sendMessage("Cancelling stale game...")
+        ) {
+            event.channel.sendMessage("Cancelling stale game...").queue()
             clean(event.jda)
             return
         }
 
         if (state != State.OFF) {
-            event.channel.sendMessage("A game is already running!")
+            event.channel.sendMessage("A game is already running!").queue()
             return
         }
 
@@ -117,8 +134,10 @@ class Minigame : AbstractCommand(
         val embed = EmbedBuilder()
             .setColor(Color.BLUE)
             .setTitle("Minigame Starting!")
-            .setDescription("React below to join the game! \n" +
-                "\nThis game may contain spoilers or NSFW themes.\nPlease run `minigame skip` in order to skip a question.")
+            .setDescription(
+                "React below to join the game! \n" +
+                    "This game may contain spoilers or NSFW themes.\nPlease run `minigame skip` in order to skip a question."
+            )
         startingMessage = event.channel.sendMessage(embed.build()).complete()
 
         startingMessage.addReaction("U+1F1F4").complete()
@@ -128,7 +147,7 @@ class Minigame : AbstractCommand(
                 "React below to join the game! \nThis game may contain spoilers or NSFW themes.\nPlease run `minigame skip` in order to skip a question.\nCurrent players: ${players.keys}\n $countdown seconds left!"
             )
             startingMessage.editMessage(embed.build()).complete()
-            
+
             Thread.sleep(2000)
         }
 
@@ -141,29 +160,99 @@ class Minigame : AbstractCommand(
 
         embed.setTitle("Minigame started!").setDescription("Game has begun!")
         startingMessage.editMessage(embed.build()).complete()
-        
+
         state = State.IN_PROGRESS
+        progress(event.jda)
     }
-    
+
+    fun progress(client: JDA) {
+        if (rounds > 1) {
+            endGame(client)
+            return
+        }
+
+        try {
+            currentQuestion = questions.removeAt(0)
+        } catch (e: IndexOutOfBoundsException) {
+            endGame(client)
+            return
+        }
+
+        answers = currentQuestion.answers.map { it.toLowerCase() }
+            .toMutableList()
+
+        if (currentQuestion.type == "FILL") {
+            startingMessage.channel.sendMessage(currentQuestion.question).queue()
+        } else if (currentQuestion.type == "MULTIPLE") {
+            val questionString = "${currentQuestion.question}\n"
+
+            val answerString = (currentQuestion.wrong + currentQuestion.answers).shuffled()
+                .mapIndexed { i, answer ->
+                    if (answers.contains(answer.toLowerCase())) {
+                        answers.add((i + 1).toString())
+                    }
+
+                    "${i + 1}) $answer"
+                }.joinToString("\n")
+
+            startingMessage.channel.sendMessage(questionString + answerString).queue()
+        }
+    }
+
+    fun endGame(client: JDA) {
+        val embed = EmbedBuilder()
+            .setColor(Color.BLUE)
+            .setTitle("Minigame ended!")
+            .setDescription("Total points:\n${getScoreboard()}")
+        startingMessage.channel.sendMessage(embed.build()).queue()
+
+        clean(client)
+    }
+
     fun clean(client: JDA) {
         client.removeEventListener(messageListener)
         state = State.OFF
     }
-    
+
     fun messageRecv(event: GuildMessageReceivedEvent) {
-        print("Message received!")
+        if (
+            state != State.IN_PROGRESS ||
+            event.channel != startingMessage.channel ||
+            !players.contains(event.author)
+        ) return
+
+        timer = System.currentTimeMillis()
+
+        println(answers)
+        println(event.message.contentStripped.toLowerCase())
+
+        if (answers.contains(event.message.contentStripped.toLowerCase())) {
+            players[event.author] = players[event.author]!! + 1
+            event.channel.sendMessage("${event.author.name} got the point!").queue()
+            rounds += 1
+            progress(event.jda)
+        }
     }
-    
+
     fun reactionRecv(event: GuildMessageReactionAddEvent) {
         if (event.user.isBot ||
             players.contains(event.user) ||
             state != State.STARTING ||
-            event.messageId != startingMessage.id) return
+            event.messageId != startingMessage.id
+        ) return
 
         players[event.user] = 0
     }
-    
+
     fun reactionRetr(event: GuildMessageReactionRemoveEvent) {
         if (state == State.STARTING) players.remove(event.user)
+    }
+
+    fun getScoreboard(): String {
+        val sortedPlayers = players.entries.sortedByDescending { it.value }
+
+        return sortedPlayers.mapIndexed { i, entry ->
+            "${i + 1}) ${entry.key.name} with ${entry.value} points"
+        }.joinToString("\n")
     }
 }
