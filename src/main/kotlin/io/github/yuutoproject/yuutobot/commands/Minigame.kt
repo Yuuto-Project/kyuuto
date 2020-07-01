@@ -102,8 +102,8 @@ class Minigame : AbstractCommand(
     }
 
     // Used by MinigameInstances to indicate that they're done
-    fun unregister(client: JDA, minigameInstance: MinigameInstance) {
-        minigames.remove(minigameInstance.channelID)
+    fun unregister(client: JDA, minigame: MinigameInstance) {
+        minigames.remove(minigame.id)
 
         // If no games are running, there's no point in listening for events
         if (minigames.isEmpty()) {

@@ -34,15 +34,18 @@ enum class State {
 
 class MinigameInstance(
     private val questions: MutableList<Question>,
-    val channelID: String,
-    private val minigameManager: Minigame,
+    // The ID of the channel the game is in
+    // Effectively the ID of the game instance itself
+    val id: String,
+    // This is necessary for when the game is finished and we want to remove the object
+    private val manager: Minigame,
     private val maxRounds: Int
 ) {
     var state = State.STARTING
     var players = mutableMapOf<User, Int>()
-    private var countdown = 0
-    private var rounds = 0
     var timer = System.currentTimeMillis()
+
+    private var rounds = 0
 
     private lateinit var startingMessageID: String
 
@@ -57,7 +60,8 @@ class MinigameInstance(
             .setTitle("Minigame Starting!")
             .setDescription(
                 "React below to join the game! \n" +
-                    "This game may contain spoilers or NSFW themes.\nPlease run `minigame skip` in order to skip a question."
+                    "This game may contain spoilers or NSFW themes.\n" +
+                    "Please run `minigame skip` in order to skip a question."
             )
         val startingMessage = event.channel.sendMessage(embed.build()).complete()
         startingMessageID = startingMessage.id
@@ -66,7 +70,11 @@ class MinigameInstance(
 
         for (countdown in 10 downTo 0 step 2) {
             embed.setDescription(
-                "React below to join the game! \nThis game may contain spoilers or NSFW themes.\nPlease run `minigame skip` in order to skip a question.\nCurrent players: ${getPlayers()}\n $countdown seconds left!"
+                "React below to join the game!\n" +
+                    "This game may contain spoilers or NSFW themes.\n" +
+                    "Please run `minigame skip` in order to skip a question.\n" +
+                    "Current players: ${getPlayers()}\n" +
+                    "$countdown seconds left!"
             )
             startingMessage.editMessage(embed.build()).complete()
 
@@ -76,7 +84,7 @@ class MinigameInstance(
         if (players.isEmpty()) {
             embed.setTitle("Minigame cancelled!").setDescription("Nobody joined...")
             startingMessage.editMessage(embed.build()).complete()
-            minigameManager.unregister(event.jda, this)
+            manager.unregister(event.jda, this)
             return
         }
 
@@ -134,7 +142,7 @@ class MinigameInstance(
             .setDescription("Total points:\n$scoreboard")
         event.channel.sendMessage(embed.build()).queue()
 
-        minigameManager.unregister(event.jda, this)
+        manager.unregister(event.jda, this)
     }
 
     fun answerReceived(event: GuildMessageReceivedEvent) {
