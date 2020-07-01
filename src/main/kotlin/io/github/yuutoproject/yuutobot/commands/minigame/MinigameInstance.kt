@@ -35,47 +35,22 @@ enum class State {
 class MinigameInstance(
     private val questions: MutableList<Question>,
     val channelID: String,
-    private val minigameManager: Minigame
+    private val minigameManager: Minigame,
+    private val maxRounds: Int
 ) {
-    private var state = State.STARTING
-    private var players = mutableMapOf<User, Int>()
+    var state = State.STARTING
+    var players = mutableMapOf<User, Int>()
     private var countdown = 0
     private var rounds = 0
-    private var timer = System.currentTimeMillis()
+    var timer = System.currentTimeMillis()
 
     private lateinit var startingMessageID: String
 
     private lateinit var currentQuestion: Question
-    private lateinit var answers: MutableList<String>
+    private lateinit var currentAnswers: MutableList<String>
 
-    fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
-        if (
-            state == State.IN_PROGRESS &&
-            args.size > 0 &&
-            args[0] == "skip" &&
-            players.contains(event.author)
-        ) {
-            event.channel.sendMessage("Skipping the question...").queue()
-            progress(event)
-            return
-        }
-
-        if (state == State.IN_PROGRESS) {
-            if (System.currentTimeMillis() - timer > 3000) {
-                event.channel.sendMessage("Cancelling stale game...").queue()
-            } else {
-                event.channel.sendMessage("A game is already running!")
-                return
-            }
-        }
-
-        state = State.STARTING
-        players = mutableMapOf()
-        countdown = 0
-        rounds = 0
-        timer = System.currentTimeMillis()
-
-        // Starting
+    fun start(event: GuildMessageReceivedEvent) {
+        event.channel.sendMessage("Starting a game with $maxRounds rounds...").queue()
 
         val embed = EmbedBuilder()
             .setColor(Color.BLUE)
@@ -112,12 +87,13 @@ class MinigameInstance(
         progress(event)
     }
 
-    private fun progress(event: GuildMessageReceivedEvent) {
-        if (rounds > 1) {
+    fun progress(event: GuildMessageReceivedEvent) {
+        if (rounds > maxRounds) {
             endGame(event)
             return
         }
 
+        // Unfortunately, no removeOrNull, so we have to use a try/catch
         try {
             currentQuestion = questions.removeAt(0)
         } catch (e: IndexOutOfBoundsException) {
@@ -125,7 +101,7 @@ class MinigameInstance(
             return
         }
 
-        answers = currentQuestion.answers.map { it.toLowerCase() }
+        currentAnswers = currentQuestion.answers.map { it.toLowerCase() }
             .toMutableList()
 
         if (currentQuestion.type == "FILL") {
@@ -135,8 +111,8 @@ class MinigameInstance(
 
             val answerString = (currentQuestion.wrong + currentQuestion.answers).shuffled()
                 .mapIndexed { i, answer ->
-                    if (answers.contains(answer.toLowerCase())) {
-                        answers.add((i + 1).toString())
+                    if (currentAnswers.contains(answer.toLowerCase())) {
+                        currentAnswers.add((i + 1).toString())
                     }
 
                     "${i + 1}) $answer"
@@ -147,23 +123,25 @@ class MinigameInstance(
     }
 
     private fun endGame(event: GuildMessageReceivedEvent) {
+        // Sort by descending value and then map each value to a line in the scoreboard, then join it
+        val scoreboard = players.entries.sortedByDescending { it.value }.mapIndexed { i, entry ->
+            "${i + 1}) ${entry.key.asMention} with ${entry.value} points"
+        }.joinToString("\n")
+
         val embed = EmbedBuilder()
             .setColor(Color.BLUE)
             .setTitle("Minigame ended!")
-            .setDescription("Total points:\n${getScoreboard()}")
+            .setDescription("Total points:\n$scoreboard")
         event.channel.sendMessage(embed.build()).queue()
+
         minigameManager.unregister(event.jda, this)
     }
 
-    fun messageRecv(event: GuildMessageReceivedEvent) {
-        if (
-            state != State.IN_PROGRESS ||
-            !players.contains(event.author)
-        ) return
-
+    fun answerReceived(event: GuildMessageReceivedEvent) {
+        // A new guess is made, so we reset the stale-game timer
         timer = System.currentTimeMillis()
 
-        if (answers.contains(event.message.contentStripped.toLowerCase())) {
+        if (currentAnswers.contains(event.message.contentStripped.toLowerCase())) {
             players[event.author] = players[event.author]!! + 1
             event.channel.sendMessage("${event.author.name} got the point!").queue()
             rounds += 1
@@ -172,7 +150,8 @@ class MinigameInstance(
     }
 
     fun reactionRecv(event: GuildMessageReactionAddEvent) {
-        if (event.user.isBot ||
+        if (
+            event.user.isBot ||
             players.contains(event.user) ||
             state != State.STARTING ||
             event.messageId != startingMessageID
@@ -182,15 +161,12 @@ class MinigameInstance(
     }
 
     fun reactionRetr(event: GuildMessageReactionRemoveEvent) {
-        if (state == State.STARTING) players.remove(event.user)
-    }
-
-    private fun getScoreboard(): String {
-        val sortedPlayers = players.entries.sortedByDescending { it.value }
-
-        return sortedPlayers.mapIndexed { i, entry ->
-            "${i + 1}) ${entry.key.asMention} with ${entry.value} points"
-        }.joinToString("\n")
+        if (
+            event.messageId == startingMessageID &&
+            state == State.STARTING
+        ) {
+            players.remove(event.user)
+        }
     }
 
     private fun getPlayers() = if (players.isNotEmpty()) {

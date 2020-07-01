@@ -23,6 +23,7 @@ import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import io.github.yuutoproject.yuutobot.commands.minigame.MinigameInstance
 import io.github.yuutoproject.yuutobot.commands.minigame.MinigameListener
+import io.github.yuutoproject.yuutobot.commands.minigame.State
 import io.github.yuutoproject.yuutobot.objects.Question
 import io.github.yuutoproject.yuutobot.utils.jackson
 import net.dv8tion.jda.api.JDA
@@ -37,8 +38,8 @@ class Minigame : AbstractCommand(
     "Run `minigame` to begin a new game, and react within the countdown to join.\nRun `minigame skip` to skip a question you do not wish to answer."
 ) {
     // String is the channel ID
-    private var minigameInstances = mutableMapOf<String, MinigameInstance>()
-    private val messageListener = MinigameListener(this)
+    private var minigames = mutableMapOf<String, MinigameInstance>()
+    private val listener = MinigameListener(this)
     private val questions: List<Question>
 
     init {
@@ -47,42 +48,82 @@ class Minigame : AbstractCommand(
     }
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
+        val id = event.channel.id
+
+        // Handling for when a game is already in progress
+        val minigame = minigames[id]
+        if (minigame != null) {
+            // If a user attempts to skip a question
+            if (args.getOrNull(0) == "skip") {
+                if (!minigame.players.contains(event.author)) {
+                    event.channel.sendMessage("You can't skip a question if you aren't in the game.").queue()
+                    return
+                }
+
+                if (minigame.state != State.IN_PROGRESS) {
+                    event.channel.sendMessage("The game has not started yet!").queue()
+                    return
+                }
+
+                minigame.progress(event)
+                return
+            }
+
+            // If the user attempts to start a new game while a game is already in progress,
+            // Either cancel it if it's stale or indicate that a game is already in progress
+            if (System.currentTimeMillis() - minigame.timer > 30_000) {
+                event.channel.sendMessage("Cancelling stale game...").queue()
+                unregister(event.jda, minigame)
+            } else {
+                event.channel.sendMessage("A game is already running!").queue()
+                return
+            }
+        }
+
         // Register our listener if it doesn't already exist
-        if (!event.jda.registeredListeners.contains(messageListener)) {
-            event.jda.addEventListener(messageListener)
+        if (!event.jda.registeredListeners.contains(listener)) {
+            event.jda.addEventListener(listener)
         }
 
-        // If a game does not exist in that channel, create one
-        if (!minigameInstances.contains(event.channel.id)) {
-            minigameInstances[event.channel.id] =
-                MinigameInstance(
-                    questions.shuffled().toMutableList(),
-                    event.channel.id,
-                    this
-                )
+        val maxRounds = args.getOrNull(0)?.toIntOrNull() ?: 7
+        if (maxRounds < 2 || maxRounds > 10) {
+            event.channel.sendMessage("The number of rounds has to be greater than 1 and less than 11.").queue()
+            return
         }
 
-        minigameInstances[event.channel.id]!!.run(args, event)
+        minigames[id] = MinigameInstance(
+            questions.shuffled().toMutableList(),
+            event.channel.id,
+            this,
+            maxRounds
+        )
+
+        minigames[id]!!.start(event)
     }
 
+    // Used by MinigameInstances to indicate that they're done
     fun unregister(client: JDA, minigameInstance: MinigameInstance) {
-        minigameInstances.remove(minigameInstance.channelID)
+        minigames.remove(minigameInstance.channelID)
 
         // If no games are running, there's no point in listening for events
-        if (minigameInstances.isEmpty()) {
-            client.removeEventListener(messageListener)
+        if (minigames.isEmpty()) {
+            client.removeEventListener(listener)
         }
     }
 
     fun messageRecv(event: GuildMessageReceivedEvent) {
-        minigameInstances[event.channel.id]?.messageRecv(event)
+        val minigame = minigames[event.channel.id] ?: return
+
+        if (minigame.state != State.IN_PROGRESS || !minigame.players.contains(event.author)) return
+
+        minigame.answerReceived(event)
     }
 
     fun reactionRecv(event: GuildMessageReactionAddEvent) {
-        minigameInstances[event.channel.id]?.reactionRecv(event)
+        minigames[event.channel.id]?.reactionRecv(event)
     }
 
     fun reactionRetr(event: GuildMessageReactionRemoveEvent) {
-        minigameInstances[event.channel.id]?.reactionRetr(event)
+        minigames[event.channel.id]?.reactionRetr(event)
     }
 }

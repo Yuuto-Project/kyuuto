@@ -25,7 +25,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent
 import net.dv8tion.jda.api.hooks.EventListener
 
-class MinigameListener(val minigame: Minigame) : EventListener {
+class MinigameListener(private val minigame: Minigame) : EventListener {
     override fun onEvent(event: GenericEvent) {
         when (event) {
             is GuildMessageReceivedEvent -> minigame.messageRecv(event)
