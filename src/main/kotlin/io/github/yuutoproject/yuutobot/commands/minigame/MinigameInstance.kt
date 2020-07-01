@@ -19,28 +19,34 @@
 package io.github.yuutoproject.yuutobot.commands.minigame
 
 import io.github.yuutoproject.yuutobot.commands.Minigame
-import io.github.yuutoproject.yuutobot.commands.State
 import io.github.yuutoproject.yuutobot.objects.Question
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent
 import java.awt.Color
 
-class MinigameInstance(val questions: MutableList<Question>, val channel: TextChannel, val minigameManager: Minigame) {
-    var state = State.OFF
-    var players = mutableMapOf<User, Int>()
-    var countdown = 0
-    var rounds = 0
-    var timer = System.currentTimeMillis()
+enum class State {
+    STARTING,
+    IN_PROGRESS
+}
 
-    lateinit var startingMessage: Message
+class MinigameInstance(
+    private val questions: MutableList<Question>,
+    val channelID: String,
+    private val minigameManager: Minigame
+) {
+    private var state = State.STARTING
+    private var players = mutableMapOf<User, Int>()
+    private var countdown = 0
+    private var rounds = 0
+    private var timer = System.currentTimeMillis()
 
-    lateinit var currentQuestion: Question
-    lateinit var answers: MutableList<String>
+    private lateinit var startingMessageID: String
+
+    private lateinit var currentQuestion: Question
+    private lateinit var answers: MutableList<String>
 
     fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
         if (
@@ -49,27 +55,27 @@ class MinigameInstance(val questions: MutableList<Question>, val channel: TextCh
             args[0] == "skip" &&
             players.contains(event.author)
         ) {
-            channel.sendMessage("Skipping the question...").queue()
-            progress()
+            event.channel.sendMessage("Skipping the question...").queue()
+            progress(event)
             return
         }
 
-        if (
-            state == State.IN_PROGRESS &&
-            System.currentTimeMillis() - timer > 3000
-        ) {
-            channel.sendMessage("Cancelling stale game...").queue()
+        if (state == State.IN_PROGRESS) {
+            if (System.currentTimeMillis() - timer > 3000) {
+                event.channel.sendMessage("Cancelling stale game...").queue()
+            } else {
+                event.channel.sendMessage("A game is already running!")
+                return
+            }
         }
 
-        state = State.OFF
+        state = State.STARTING
         players = mutableMapOf()
         countdown = 0
         rounds = 0
         timer = System.currentTimeMillis()
 
         // Starting
-
-        state = State.STARTING
 
         val embed = EmbedBuilder()
             .setColor(Color.BLUE)
@@ -78,13 +84,14 @@ class MinigameInstance(val questions: MutableList<Question>, val channel: TextCh
                 "React below to join the game! \n" +
                     "This game may contain spoilers or NSFW themes.\nPlease run `minigame skip` in order to skip a question."
             )
-        startingMessage = channel.sendMessage(embed.build()).complete()
+        val startingMessage = event.channel.sendMessage(embed.build()).complete()
+        startingMessageID = startingMessage.id
 
         startingMessage.addReaction("U+1F1F4").complete()
 
         for (countdown in 10 downTo 0 step 2) {
             embed.setDescription(
-                "React below to join the game! \nThis game may contain spoilers or NSFW themes.\nPlease run `minigame skip` in order to skip a question.\nCurrent players: ${players.keys}\n $countdown seconds left!"
+                "React below to join the game! \nThis game may contain spoilers or NSFW themes.\nPlease run `minigame skip` in order to skip a question.\nCurrent players: ${getPlayers()}\n $countdown seconds left!"
             )
             startingMessage.editMessage(embed.build()).complete()
 
@@ -94,7 +101,7 @@ class MinigameInstance(val questions: MutableList<Question>, val channel: TextCh
         if (players.isEmpty()) {
             embed.setTitle("Minigame cancelled!").setDescription("Nobody joined...")
             startingMessage.editMessage(embed.build()).complete()
-            minigameManager.unregister(this)
+            minigameManager.unregister(event.jda, this)
             return
         }
 
@@ -102,19 +109,19 @@ class MinigameInstance(val questions: MutableList<Question>, val channel: TextCh
         startingMessage.editMessage(embed.build()).complete()
 
         state = State.IN_PROGRESS
-        progress()
+        progress(event)
     }
 
-    fun progress() {
+    private fun progress(event: GuildMessageReceivedEvent) {
         if (rounds > 1) {
-            endGame()
+            endGame(event)
             return
         }
 
         try {
             currentQuestion = questions.removeAt(0)
         } catch (e: IndexOutOfBoundsException) {
-            endGame()
+            endGame(event)
             return
         }
 
@@ -122,7 +129,7 @@ class MinigameInstance(val questions: MutableList<Question>, val channel: TextCh
             .toMutableList()
 
         if (currentQuestion.type == "FILL") {
-            channel.sendMessage(currentQuestion.question).queue()
+            event.channel.sendMessage(currentQuestion.question).queue()
         } else if (currentQuestion.type == "MULTIPLE") {
             val questionString = "${currentQuestion.question}\n"
 
@@ -135,17 +142,17 @@ class MinigameInstance(val questions: MutableList<Question>, val channel: TextCh
                     "${i + 1}) $answer"
                 }.joinToString("\n")
 
-            channel.sendMessage(questionString + answerString).queue()
+            event.channel.sendMessage(questionString + answerString).queue()
         }
     }
 
-    fun endGame() {
+    private fun endGame(event: GuildMessageReceivedEvent) {
         val embed = EmbedBuilder()
             .setColor(Color.BLUE)
             .setTitle("Minigame ended!")
             .setDescription("Total points:\n${getScoreboard()}")
-        channel.sendMessage(embed.build()).queue()
-        minigameManager.unregister(this)
+        event.channel.sendMessage(embed.build()).queue()
+        minigameManager.unregister(event.jda, this)
     }
 
     fun messageRecv(event: GuildMessageReceivedEvent) {
@@ -158,9 +165,9 @@ class MinigameInstance(val questions: MutableList<Question>, val channel: TextCh
 
         if (answers.contains(event.message.contentStripped.toLowerCase())) {
             players[event.author] = players[event.author]!! + 1
-            channel.sendMessage("${event.author.name} got the point!").queue()
+            event.channel.sendMessage("${event.author.name} got the point!").queue()
             rounds += 1
-            progress()
+            progress(event)
         }
     }
 
@@ -168,7 +175,7 @@ class MinigameInstance(val questions: MutableList<Question>, val channel: TextCh
         if (event.user.isBot ||
             players.contains(event.user) ||
             state != State.STARTING ||
-            event.messageId != startingMessage.id
+            event.messageId != startingMessageID
         ) return
 
         players[event.user] = 0
@@ -178,11 +185,17 @@ class MinigameInstance(val questions: MutableList<Question>, val channel: TextCh
         if (state == State.STARTING) players.remove(event.user)
     }
 
-    fun getScoreboard(): String {
+    private fun getScoreboard(): String {
         val sortedPlayers = players.entries.sortedByDescending { it.value }
 
         return sortedPlayers.mapIndexed { i, entry ->
-            "${i + 1}) ${entry.key.name} with ${entry.value} points"
+            "${i + 1}) ${entry.key.asMention} with ${entry.value} points"
         }.joinToString("\n")
+    }
+
+    private fun getPlayers() = if (players.isNotEmpty()) {
+        players.keys.joinToString(", ") { it.asMention }
+    } else {
+        "none"
     }
 }

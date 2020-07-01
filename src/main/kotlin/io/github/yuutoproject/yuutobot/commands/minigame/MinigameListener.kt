@@ -19,21 +19,18 @@
 package io.github.yuutoproject.yuutobot.commands.minigame
 
 import io.github.yuutoproject.yuutobot.commands.Minigame
+import net.dv8tion.jda.api.events.GenericEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent
-import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.dv8tion.jda.api.hooks.EventListener
 
-class MinigameListener(val minigame: Minigame) : ListenerAdapter() {
-    override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
-        minigame.messageRecv(event)
-    }
-
-    override fun onGuildMessageReactionAdd(event: GuildMessageReactionAddEvent) {
-        minigame.reactionRecv(event)
-    }
-
-    override fun onGuildMessageReactionRemove(event: GuildMessageReactionRemoveEvent) {
-        minigame.reactionRetr(event)
+class MinigameListener(val minigame: Minigame) : EventListener {
+    override fun onEvent(event: GenericEvent) {
+        when (event) {
+            is GuildMessageReceivedEvent -> minigame.messageRecv(event)
+            is GuildMessageReactionAddEvent -> minigame.reactionRecv(event)
+            is GuildMessageReactionRemoveEvent -> minigame.reactionRetr(event)
+        }
     }
 }

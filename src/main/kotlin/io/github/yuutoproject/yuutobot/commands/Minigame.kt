@@ -26,16 +26,9 @@ import io.github.yuutoproject.yuutobot.commands.minigame.MinigameListener
 import io.github.yuutoproject.yuutobot.objects.Question
 import io.github.yuutoproject.yuutobot.utils.jackson
 import net.dv8tion.jda.api.JDA
-import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent
-
-enum class State {
-    OFF,
-    STARTING,
-    IN_PROGRESS
-}
 
 class Minigame : AbstractCommand(
     "minigame",
@@ -43,11 +36,10 @@ class Minigame : AbstractCommand(
     "Play a fun quiz with your friends!",
     "Run `minigame` to begin a new game, and react within the countdown to join.\nRun `minigame skip` to skip a question you do not wish to answer."
 ) {
-    var minigameInstances = mutableMapOf<TextChannel, MinigameInstance>()
-    val messageListener = MinigameListener(this)
-    val questions: List<Question>
-
-    lateinit var client: JDA
+    // String is the channel ID
+    private var minigameInstances = mutableMapOf<String, MinigameInstance>()
+    private val messageListener = MinigameListener(this)
+    private val questions: List<Question>
 
     init {
         val json = jackson.readTree(this.javaClass.getResource("/minigame.json"))
@@ -55,34 +47,26 @@ class Minigame : AbstractCommand(
     }
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
-        if (minigameInstances.contains(event.channel) &&
-            args.size > 0 &&
-            args[0] != "skip"
-        ) {
-            event.channel.sendMessage("A game is already running!")
-            return
+        // Register our listener if it doesn't already exist
+        if (!event.jda.registeredListeners.contains(messageListener)) {
+            event.jda.addEventListener(messageListener)
         }
 
-        if (!minigameInstances.contains(event.channel)) {
-            minigameInstances[event.channel] =
+        // If a game does not exist in that channel, create one
+        if (!minigameInstances.contains(event.channel.id)) {
+            minigameInstances[event.channel.id] =
                 MinigameInstance(
-                    questions.toMutableList(),
-                    event.channel,
+                    questions.shuffled().toMutableList(),
+                    event.channel.id,
                     this
                 )
         }
 
-        // Register our listener if it doesn't already exist
-        if (!event.jda.registeredListeners.contains(messageListener)) {
-            client = event.jda
-            event.jda.addEventListener(messageListener)
-        }
-
-        minigameInstances[event.channel]!!.run(args, event)
+        minigameInstances[event.channel.id]!!.run(args, event)
     }
 
-    fun unregister(minigameInstance: MinigameInstance) {
-        minigameInstances.remove(minigameInstance.channel)
+    fun unregister(client: JDA, minigameInstance: MinigameInstance) {
+        minigameInstances.remove(minigameInstance.channelID)
 
         // If no games are running, there's no point in listening for events
         if (minigameInstances.isEmpty()) {
@@ -91,20 +75,14 @@ class Minigame : AbstractCommand(
     }
 
     fun messageRecv(event: GuildMessageReceivedEvent) {
-        if (!minigameInstances.contains(event.channel)) return
-
-        minigameInstances[event.channel]!!.messageRecv(event)
+        minigameInstances[event.channel.id]?.messageRecv(event)
     }
 
     fun reactionRecv(event: GuildMessageReactionAddEvent) {
-        if (!minigameInstances.contains(event.channel)) return
-
-        minigameInstances[event.channel]!!.reactionRecv(event)
+        minigameInstances[event.channel.id]?.reactionRecv(event)
     }
 
     fun reactionRetr(event: GuildMessageReactionRemoveEvent) {
-        if (!minigameInstances.contains(event.channel)) return
-
-        minigameInstances[event.channel]!!.reactionRetr(event)
+        minigameInstances[event.channel.id]?.reactionRetr(event)
     }
 }
