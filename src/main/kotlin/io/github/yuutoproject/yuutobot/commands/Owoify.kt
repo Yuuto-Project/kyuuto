@@ -33,11 +33,12 @@ import java.util.*
 class Owoify : AbstractCommand(
     "owoify",
     CommandCategory.FUN,
-    // TODO: Change this description
-    "Yuuto can turn owoify your text! (whatever that means)",
-    "owoify [level] <text>"
+    "Yuuto can owoify your text!",
+    "`owoify [level] <text>`. Level can be one of `easy`, `medium` or `hard` to indicate how cringe-worthy the outcome is."
 ) {
     private val levels = listOf("easy", "medium", "hard")
+
+    override val aliases = arrayOf("owo")
 
     init {
         downloadFile()
@@ -45,7 +46,7 @@ class Owoify : AbstractCommand(
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
         if (args.size == 0) {
-            event.channel.sendMessage("Sorry, but you need to provide me a message to owoify").queue()
+            event.channel.sendMessage("Sorry, but you need to provide me a message to owoify!").queue()
             return
         }
 
