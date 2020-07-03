@@ -25,6 +25,7 @@ import io.github.yuutoproject.yuutobot.utils.httpClient
 import io.github.yuutoproject.yuutobot.utils.jackson
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.utils.MarkdownSanitizer
+import net.dv8tion.jda.internal.utils.IOUtil
 import okhttp3.Request
 import java.io.File
 import java.util.*
@@ -111,9 +112,7 @@ class Owoify : AbstractCommand(
                 .build()
 
             httpClient.newCall(download).execute().use { response ->
-                file.writer().use {
-                    it.write(response.body!!.string())
-                }
+                file.writeBytes(IOUtil.readFully(IOUtil.getBody(response)))
             }
         }
     }
