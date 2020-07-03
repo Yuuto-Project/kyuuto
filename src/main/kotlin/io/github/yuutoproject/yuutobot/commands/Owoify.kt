@@ -90,7 +90,7 @@ class Owoify : AbstractCommand(
         val file = File(FILE_NAME)
 
         if (file.exists()) {
-            println("File exists")
+            logger.debug("File exists")
             return
         }
 
