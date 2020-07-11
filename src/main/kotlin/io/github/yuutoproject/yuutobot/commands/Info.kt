@@ -20,6 +20,7 @@ package io.github.yuutoproject.yuutobot.commands
 
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
+import io.github.yuutoproject.yuutobot.utils.Constants
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
@@ -37,12 +38,12 @@ class Info : AbstractCommand("info", CommandCategory.INFO, "Shows the informatio
             .setDescription(
                 "Yuuto was made and developed by the community, for the community. \n" +
                     "Join the dev team and start developing on the [project website](https://kyuuto.io/docs). \n\n" +
-                    "Version 3.0 (Kyuuto v1) was made and developed by: \n" +
-                    "**Arch#0226**, **dunste123#0129**, **Tai Chi#4634**, **zsotroav#8941** \n \n" +
+                    "Version ${Constants.YUUTO_VERSION} (Kyuuto v${Constants.KYUUTO_VERSION}) was made and developed by: \n" +
+                    "**Arch#0226**, **dunste123#0129**, **zsotroav#8941** \n \n" +
                     "Quick Change log: \n" +
-                    "```diff\nMoved from JavaScript to Kotlin \n```"
+                    "```diff\nMoved all code from JavaScript to Kotlin \n```"
             )
-            .setFooter("Yuuto: Release 3.0 | 2020-TBA")
+            .setFooter("Yuuto: Release ${Constants.YUUTO_VERSION} | ${Constants.YUUTO_RELEASE}")
 
         event.channel.sendMessage(InfoEmbed.build()).queue()
     }

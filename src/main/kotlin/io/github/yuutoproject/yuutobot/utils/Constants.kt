@@ -21,5 +21,7 @@ package io.github.yuutoproject.yuutobot.utils
 // This class should only contain static booleans, ints, strings etc (no classes)
 // as they are hardcoded into the code at compile time
 object Constants {
-    const val YUUTO_VERSION = "3.0"
+    const val YUUTO_RELEASE = "2020-TBA" // Release date of the current version
+    const val YUUTO_VERSION = "3.0" // Version of the bot (the user sees)
+    const val KYUUTO_VERSION = "1.0" // Version of Kyuuto, the Kotlin version
 }
