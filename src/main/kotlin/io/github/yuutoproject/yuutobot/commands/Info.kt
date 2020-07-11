@@ -25,10 +25,10 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
 class Info : AbstractCommand("info", CommandCategory.INFO, "Shows the information about the bot and it's developers", "info") {
-    override val aliases = arrayOf("bot", "credits")
+    override val aliases = arrayOf("about", "bot", "credits")
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
-        val InfoEmbed = EmbedBuilder()
+        val infoEmbed = EmbedBuilder()
             .setColor(0xFF93CE)
             .setAuthor(
                 "Yuuto from Camp Buddy",
@@ -45,6 +45,6 @@ class Info : AbstractCommand("info", CommandCategory.INFO, "Shows the informatio
             )
             .setFooter("Yuuto: Release ${Constants.YUUTO_VERSION} | ${Constants.YUUTO_RELEASE}")
 
-        event.channel.sendMessage(InfoEmbed.build()).queue()
+        event.channel.sendMessage(infoEmbed.build()).queue()
     }
 }
