@@ -19,7 +19,6 @@
 package io.github.yuutoproject.yuutobot
 
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
-import java.lang.reflect.Modifier
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.events.ReadyEvent
@@ -27,6 +26,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.reflections.Reflections
 import org.slf4j.LoggerFactory
+import java.lang.reflect.Modifier
 
 class Listener : ListenerAdapter() {
     private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -48,6 +48,14 @@ class Listener : ListenerAdapter() {
         val prefix = Yuuto.config.get("PREFIX", "!")
 
         if (event.isWebhookMessage || author.isBot || content.isBlank() || !content.startsWith(prefix)) {
+            return
+        }
+
+        val botcmdsChannel = Yuuto.config["BOTCMDS_${event.guild.idLong}"]
+
+        // If the botcms channel is set for the server and the channel is the channel stored
+        // Commands can be executed, if not this will return
+        if (botcmdsChannel != null && botcmdsChannel != event.channel.id) {
             return
         }
 

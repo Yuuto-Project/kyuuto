@@ -16,14 +16,17 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.github.yuutoproject.yuutobot.commands.base
+package io.github.yuutoproject.yuutobot.extensions
 
-enum class CommandCategory {
-    INFO,
-    FUN,
-    UTIL,
-    OTHER_CATEGORY;
+import io.github.yuutoproject.yuutobot.utils.Constants
+import okhttp3.Request
 
-    // This is an instance prop
-    val displayName: String = name.toLowerCase()
+fun Request.Builder.applyDefaults(): Request.Builder {
+    this.header(
+        "User-Agent",
+        "Yuuto Discord Bot / ${Constants.YUUTO_VERSION} https://github.com/Yuuto-Project/kyuuto"
+    )
+    this.get()
+
+    return this
 }
