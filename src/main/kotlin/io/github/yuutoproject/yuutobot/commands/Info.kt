@@ -43,7 +43,7 @@ class Info : AbstractCommand("info", CommandCategory.INFO, "Shows the informatio
                     "Quick Change log: \n" +
                     "```diff\nMoved all code from JavaScript to Kotlin \n```"
             )
-            .setFooter("Kyuuto: Release ${Constants.KYUUTO_VERSION} | ${Constants.YUUTO_RELEASE}")
+            .setFooter("Kyuuto | Release ${Constants.KYUUTO_VERSION} - ${Constants.YUUTO_RELEASE}")
 
         event.channel.sendMessage(infoEmbed.build()).queue()
     }
