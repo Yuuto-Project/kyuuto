@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory
  *
  * Commands can add aliases by overriding the [aliases] prop
  */
-abstract class Command(
+abstract class AbstractCommand(
     val name: String,
     val category: CommandCategory,
     val description: String,

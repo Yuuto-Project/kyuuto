@@ -18,13 +18,13 @@
 
 package io.github.yuutoproject.yuutobot.commands
 
-import io.github.yuutoproject.yuutobot.commands.base.Command
+import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import io.github.yuutoproject.yuutobot.utils.findMember
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
-class Avatar : Command(
+class Avatar : AbstractCommand(
     "avatar",
     CommandCategory.UTILITIES,
     "Gets your own or someone's avatar",

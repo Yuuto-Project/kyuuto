@@ -19,7 +19,7 @@
 package io.github.yuutoproject.yuutobot.commands
 
 import com.fasterxml.jackson.core.type.TypeReference
-import io.github.yuutoproject.yuutobot.commands.base.Command
+import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import io.github.yuutoproject.yuutobot.extensions.getStaticAvatarUrl
 import io.github.yuutoproject.yuutobot.objects.Character
@@ -27,7 +27,7 @@ import io.github.yuutoproject.yuutobot.utils.jackson
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
-class Route : Command("route", CommandCategory.INFO, "Tells you what route to play next") {
+class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what route to play next") {
     private val endings = listOf("perfect", "good", "bad", "worst")
     private val characters: List<Character>
 

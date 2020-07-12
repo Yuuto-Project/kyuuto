@@ -19,7 +19,7 @@
 package io.github.yuutoproject.yuutobot.commands
 
 import com.fasterxml.jackson.core.type.TypeReference
-import io.github.yuutoproject.yuutobot.commands.base.Command
+import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import io.github.yuutoproject.yuutobot.utils.EMOJI_REGEX
 import io.github.yuutoproject.yuutobot.utils.NONASCII_REGEX
@@ -36,7 +36,7 @@ import okhttp3.Response
 import java.io.IOException
 import okhttp3.Callback as OkHttp3Callback
 
-class Dialog : Command(
+class Dialog : AbstractCommand(
     "dialog",
     CommandCategory.INFO,
     "Generates an image of a character in Camp Buddy saying anything you want",

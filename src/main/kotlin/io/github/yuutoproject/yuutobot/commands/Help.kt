@@ -19,11 +19,11 @@
 package io.github.yuutoproject.yuutobot.commands
 
 import io.github.yuutoproject.yuutobot.CommandManager
-import io.github.yuutoproject.yuutobot.commands.base.Command
+import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
-class Help(private val commandManager: CommandManager) : Command(
+class Help(private val commandManager: CommandManager) : AbstractCommand(
     "help",
     CommandCategory.INFO,
     "Get the usage of any command",
@@ -40,7 +40,7 @@ class Help(private val commandManager: CommandManager) : Command(
                 "Here is a list of all commands and their descriptions:\n"
             )
 
-            val groups = commandManager.commands.values.groupBy(Command::category)
+            val groups = commandManager.commands.values.groupBy(AbstractCommand::category)
 
             for ((category, commandsInCategory) in groups) {
                 message.append("\n$category\n")

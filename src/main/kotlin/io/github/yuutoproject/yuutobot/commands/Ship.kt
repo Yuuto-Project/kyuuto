@@ -18,7 +18,7 @@
 
 package io.github.yuutoproject.yuutobot.commands
 
-import io.github.yuutoproject.yuutobot.commands.base.Command
+import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import io.github.yuutoproject.yuutobot.extensions.applyDefaults
 import io.github.yuutoproject.yuutobot.extensions.getStaticAvatarUrl
@@ -36,7 +36,7 @@ import java.io.File
 import java.io.IOException
 import okhttp3.Callback as OkHttp3Callback
 
-class Ship : Command(
+class Ship : AbstractCommand(
     "ship",
     CommandCategory.FUN,
     "Yuuto mastered the art of shipping users and can now calculate if you and your crush will work out",
