@@ -16,13 +16,11 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.github.yuutoproject.yuutobot.commands.base
+package io.github.yuutoproject.yuutobot
 
-enum class CommandCategory {
-    INFO,
-    UTIL,
-    OTHER_CATEGORY;
-
-    // This is an instance prop
-    val displayName: String = name.toLowerCase()
+object Utils {
+    fun hexStringToInt(hex: String): Int {
+        val hexValue = "0x" + hex.replaceFirst("#".toRegex(), "")
+        return Integer.decode(hexValue)
+    }
 }

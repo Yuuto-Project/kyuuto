@@ -16,13 +16,20 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.github.yuutoproject.yuutobot.commands.base
+package io.github.yuutoproject.yuutobot.utils
 
-enum class CommandCategory {
-    INFO,
-    UTIL,
-    OTHER_CATEGORY;
+import com.jagrosh.jdautilities.commons.utils.FinderUtil
+import net.dv8tion.jda.api.entities.Member
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
-    // This is an instance prop
-    val displayName: String = name.toLowerCase()
+fun findMember(input: String, event: GuildMessageReceivedEvent): Member? {
+    val foundMembers = FinderUtil.findMembers(input, event.guild)
+
+    if (foundMembers.isEmpty()) {
+        return null
+    }
+
+    // why not "?: null"
+    // Well java is fun and will throw an index out of bounds exception if there is no first element
+    return foundMembers[0]
 }

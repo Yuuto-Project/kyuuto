@@ -19,14 +19,16 @@
 package io.github.yuutoproject.yuutobot
 
 import io.github.cdimascio.dotenv.Dotenv
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.requests.GatewayIntent
+import net.dv8tion.jda.api.utils.ChunkingFilter
+import net.dv8tion.jda.api.utils.MemberCachePolicy
 import net.dv8tion.jda.api.utils.cache.CacheFlag.*
 import org.slf4j.LoggerFactory
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class Yuuto {
     private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -52,6 +54,8 @@ class Yuuto {
         )
             .addEventListeners(Listener())
             .disableCache(ACTIVITY, CLIENT_STATUS, EMOTE, VOICE_STATE)
+            .setChunkingFilter(ChunkingFilter.ALL)
+            .setMemberCachePolicy(MemberCachePolicy.ALL)
             .setActivity(Activity.playing("volleyball"))
             .setBulkDeleteSplittingEnabled(false)
             .build()
@@ -61,9 +65,10 @@ class Yuuto {
     }
 
     private fun startGameTimer() {
-        gameService.scheduleAtFixedRate({
-            jda.presence.activity = Activity.playing("volleyball")
-        }, 1, 1, TimeUnit.DAYS)
+        gameService.scheduleAtFixedRate(
+            { jda.presence.activity = Activity.playing("volleyball") },
+            1, 1, TimeUnit.DAYS
+        )
     }
 
     companion object {
