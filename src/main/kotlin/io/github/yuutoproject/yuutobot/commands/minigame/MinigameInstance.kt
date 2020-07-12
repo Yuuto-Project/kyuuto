@@ -20,11 +20,11 @@ package io.github.yuutoproject.yuutobot.commands.minigame
 
 import io.github.yuutoproject.yuutobot.commands.Minigame
 import io.github.yuutoproject.yuutobot.objects.Question
+import kotlinx.coroutines.delay
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent
-import java.awt.Color
 
 class MinigameInstance(
     private val questions: MutableList<Question>,
@@ -49,11 +49,11 @@ class MinigameInstance(
     private lateinit var currentQuestion: Question
     private lateinit var currentAnswers: MutableList<String>
 
-    fun start(event: GuildMessageReceivedEvent) {
+    suspend fun start(event: GuildMessageReceivedEvent) {
         event.channel.sendMessage("Starting a game with $maxRounds rounds...").queue()
 
         val embed = EmbedBuilder()
-            .setColor(Color.BLUE)
+            .setColor(0xFF93CE)
             .setTitle("Minigame Starting!")
             .setDescription(
                 "React below to join the game! \n" +
@@ -75,7 +75,7 @@ class MinigameInstance(
             )
             startingMessage.editMessage(embed.build()).complete()
 
-            Thread.sleep(2000)
+            delay(2000)
         }
 
         if (players.isEmpty()) {
@@ -134,7 +134,7 @@ class MinigameInstance(
         }.joinToString("\n")
 
         val embed = EmbedBuilder()
-            .setColor(Color.BLUE)
+            .setColor(0xFF93CE)
             .setTitle("Minigame ended!")
             .setDescription("Total points:\n$scoreboard")
         event.channel.sendMessage(embed.build()).queue()
@@ -148,7 +148,7 @@ class MinigameInstance(
 
         if (currentAnswers.contains(event.message.contentStripped.toLowerCase())) {
             players[event.author.idLong] = players[event.author.idLong]!! + 1
-            event.channel.sendMessage("${event.author.name} got the point!").queue()
+            event.channel.sendMessage("<@${event.author.id}> got the point!").queue()
             rounds += 1
             progress(event)
         }
@@ -168,6 +168,7 @@ class MinigameInstance(
     fun reactionRetr(event: GuildMessageReactionRemoveEvent) {
         if (
             event.messageId == startingMessageID &&
+            event.reactionEmote.asCodepoints == "U+1f1f4" &&
             !begun
         ) {
             players.remove(event.user!!.idLong)
@@ -175,7 +176,7 @@ class MinigameInstance(
     }
 
     private fun getPlayers() = if (players.isNotEmpty()) {
-        players.keys.joinToString(", ") { "<@$id>" }
+        players.keys.joinToString(", ") { "<@$it>" }
     } else {
         "none"
     }

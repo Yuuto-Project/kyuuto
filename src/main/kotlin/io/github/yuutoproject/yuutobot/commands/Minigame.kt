@@ -25,13 +25,15 @@ import io.github.yuutoproject.yuutobot.commands.minigame.MinigameInstance
 import io.github.yuutoproject.yuutobot.commands.minigame.MinigameListener
 import io.github.yuutoproject.yuutobot.objects.Question
 import io.github.yuutoproject.yuutobot.utils.jackson
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent
 
 class Minigame : AbstractCommand(
     "minigame",
-    CommandCategory.GAME,
+    CommandCategory.FUN,
     "Play a fun quiz with your friends!",
     "Run `minigame` to begin a new game, and react within the countdown to join.\nRun `minigame skip` to skip a question you do not wish to answer."
 ) {
@@ -50,11 +52,12 @@ class Minigame : AbstractCommand(
 
         // Handling for when a game is already in progress
         val minigame = minigames[id]
+
         if (minigame != null) {
             // If a user attempts to skip a question
             if (args.getOrNull(0) == "skip") {
                 if (!minigame.players.contains(event.author.idLong)) {
-                    event.channel.sendMessage("You can't skip a question if you aren't in the game.").queue()
+                    event.channel.sendMessage("You can't skip a question if you aren't in the game!").queue()
                     return
                 }
 
@@ -63,6 +66,7 @@ class Minigame : AbstractCommand(
                     return
                 }
 
+                event.channel.sendMessage("Skipping question...").queue()
                 minigame.progress(event)
                 return
             }
@@ -72,6 +76,7 @@ class Minigame : AbstractCommand(
             if (System.currentTimeMillis() - minigame.timer > 30_000) {
                 event.channel.sendMessage("Cancelling stale game...").queue()
                 unregister(minigame)
+                // Continue outside of the if block and create a new game instance...
             } else {
                 event.channel.sendMessage("A game is already running!").queue()
                 return
@@ -96,7 +101,10 @@ class Minigame : AbstractCommand(
             maxRounds
         )
 
-        minigames[id]!!.start(event)
+        // Launch the game instance.
+        GlobalScope.launch {
+            minigames[id]!!.start(event)
+        }
     }
 
     // Used by MinigameInstances to indicate that they're done
