@@ -40,7 +40,8 @@ class Ship : AbstractCommand(
     "ship",
     CommandCategory.FUN,
     "Yuuto mastered the art of shipping users and can now calculate if you and your crush will work out",
-    "<user1> <user2>"
+    "<user1> <user2>",
+    ""
 ) {
     private val shipMessages: Map<Int, String>
     private val riggedUsers: Map<Long, Long>

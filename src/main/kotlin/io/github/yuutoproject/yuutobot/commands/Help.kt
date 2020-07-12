@@ -28,7 +28,7 @@ class Help(private val commandManager: CommandManager) : AbstractCommand(
     CommandCategory.INFO,
     "Get the usage of any command",
     "[command]",
-    "`[command]` is the name or alias of the command you need the usage for. Run `help list` to list possible commands"
+    "Run `help list` to list possible commands"
 ) {
     override val aliases = arrayOf("usage", "commands")
 
@@ -72,11 +72,12 @@ class Help(private val commandManager: CommandManager) : AbstractCommand(
             else "\n**Usage:** `${commandManager.prefix}${command.name}`"
         )
 
-        if (command.notes.isNotBlank() || command.description.isNotBlank()) {
-            message.append(
-                "\n**Description:** " +
-                    "${command.description.trim('.', '!')}. ${command.notes.trim('.', '!')}."
-            )
+        message.append(
+            "\n**Description:** ${command.description.trim('.', '!')}. "
+        )
+
+        if (command.notes.isNotBlank()) {
+            message.append("${command.notes.trim('.', '!')}.")
         }
 
         if (command.aliases.isNotEmpty()) {

@@ -27,7 +27,7 @@ import io.github.yuutoproject.yuutobot.utils.jackson
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
-class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what route to play next", "route") {
+class Route : AbstractCommand("route", CommandCategory.INFO, "Tells you what route to play next", "", "") {
     private val endings = listOf("perfect", "good", "bad", "worst")
     private val characters: List<Character>
 

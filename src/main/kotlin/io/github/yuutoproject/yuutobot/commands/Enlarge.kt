@@ -22,7 +22,7 @@ import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
-class Enlarge : AbstractCommand("enlarge", CommandCategory.UTIL, "Returns an enlarged emote", "Run `enlarge <emote>` to get the full link to `<emote>` at a large size") {
+class Enlarge : AbstractCommand("enlarge", CommandCategory.UTILITIES, "Returns an enlarged emote", "<emote>", "") {
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
         val emotes = event.message.emotes
 

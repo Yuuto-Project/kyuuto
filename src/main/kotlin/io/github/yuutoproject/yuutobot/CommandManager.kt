@@ -20,12 +20,12 @@ package io.github.yuutoproject.yuutobot
 
 import io.github.yuutoproject.yuutobot.commands.Help
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
-import java.lang.reflect.Modifier
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.reflections.Reflections
 import org.slf4j.LoggerFactory
+import java.lang.reflect.Modifier
 
 class CommandManager {
     private val logger = LoggerFactory.getLogger(this.javaClass)
