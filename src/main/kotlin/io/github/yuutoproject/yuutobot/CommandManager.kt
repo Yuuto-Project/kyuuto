@@ -77,17 +77,9 @@ class CommandManager {
         }
 
         val invoke = args.removeAt(0).toLowerCase()
-        var command: AbstractCommand? = null
 
-        if (commands.containsKey(invoke)) {
-            command = commands[invoke]
-        } else if (aliases.containsKey(invoke)) {
-            command = commands[aliases[invoke]]
-        }
-
-        if (command == null) {
-            return
-        }
+        // If no command exists with that name, ignore the message
+        val command = getCommand(invoke) ?: return
 
         val commandName = command.name
 
@@ -105,6 +97,9 @@ class CommandManager {
         }
     }
 
-    // No need to worry about indexing with null, it just returns null
-    fun getCommand(commandName: String) = commands[commandName] ?: commands[aliases[commandName]]
+    fun getCommand(commandName: String) = commands[commandName] ?: if (aliases.contains(commandName)) {
+        commands[aliases[commandName]]
+    } else {
+        null
+    }
 }
