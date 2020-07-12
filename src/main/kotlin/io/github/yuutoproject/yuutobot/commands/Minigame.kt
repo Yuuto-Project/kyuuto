@@ -36,7 +36,7 @@ class Minigame : AbstractCommand(
     "Run `minigame` to begin a new game, and react within the countdown to join.\nRun `minigame skip` to skip a question you do not wish to answer."
 ) {
     // String is the channel ID
-    private var minigames = mutableMapOf<String, MinigameInstance>()
+    private var minigames = mutableMapOf<Long, MinigameInstance>()
     private val listener = MinigameListener(this)
     private val questions: List<Question>
 
@@ -46,14 +46,14 @@ class Minigame : AbstractCommand(
     }
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
-        val id = event.channel.id
+        val id = event.channel.idLong
 
         // Handling for when a game is already in progress
         val minigame = minigames[id]
         if (minigame != null) {
             // If a user attempts to skip a question
             if (args.getOrNull(0) == "skip") {
-                if (!minigame.players.contains(event.author.id)) {
+                if (!minigame.players.contains(event.author.idLong)) {
                     event.channel.sendMessage("You can't skip a question if you aren't in the game.").queue()
                     return
                 }
@@ -91,7 +91,7 @@ class Minigame : AbstractCommand(
 
         minigames[id] = MinigameInstance(
             questions.shuffled().toMutableList(),
-            event.channel.id,
+            event.channel.idLong,
             this,
             maxRounds
         )
@@ -105,18 +105,18 @@ class Minigame : AbstractCommand(
     }
 
     fun messageRecv(event: GuildMessageReceivedEvent) {
-        val minigame = minigames[event.channel.id] ?: return
+        val minigame = minigames[event.channel.idLong] ?: return
 
-        if (!minigame.begun || !minigame.players.contains(event.author.id)) return
+        if (!minigame.begun || !minigame.players.contains(event.author.idLong)) return
 
         minigame.answerReceived(event)
     }
 
     fun reactionRecv(event: GuildMessageReactionAddEvent) {
-        minigames[event.channel.id]?.reactionRecv(event)
+        minigames[event.channel.idLong]?.reactionRecv(event)
     }
 
     fun reactionRetr(event: GuildMessageReactionRemoveEvent) {
-        minigames[event.channel.id]?.reactionRetr(event)
+        minigames[event.channel.idLong]?.reactionRetr(event)
     }
 }
