@@ -53,7 +53,7 @@ class Minigame : AbstractCommand(
         if (minigame != null) {
             // If a user attempts to skip a question
             if (args.getOrNull(0) == "skip") {
-                if (!minigame.players.contains(event.author)) {
+                if (!minigame.players.contains(event.author.id)) {
                     event.channel.sendMessage("You can't skip a question if you aren't in the game.").queue()
                     return
                 }
@@ -107,7 +107,7 @@ class Minigame : AbstractCommand(
     fun messageRecv(event: GuildMessageReceivedEvent) {
         val minigame = minigames[event.channel.id] ?: return
 
-        if (!minigame.begun || !minigame.players.contains(event.author)) return
+        if (!minigame.begun || !minigame.players.contains(event.author.id)) return
 
         minigame.answerReceived(event)
     }
