@@ -21,7 +21,6 @@ package io.github.yuutoproject.yuutobot.commands.minigame
 import io.github.yuutoproject.yuutobot.commands.Minigame
 import io.github.yuutoproject.yuutobot.objects.Question
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent
@@ -38,7 +37,9 @@ class MinigameInstance(
 ) {
     // Is the game in progress or not?
     var begun = false
-    var players = mutableMapOf<User, Int>()
+
+    // String ID of user and their scores
+    var players = mutableMapOf<String, Int>()
     var timer = System.currentTimeMillis()
 
     private var rounds = 1
@@ -69,7 +70,7 @@ class MinigameInstance(
                 "React below to join the game!\n" +
                     "This game may contain spoilers or NSFW themes.\n" +
                     "Please run `minigame skip` in order to skip a question.\n" +
-                    "Current players: ${getPlayers()}\n" +
+                    "Current players: ${getPlayers(event)}\n" +
                     "$countdown seconds left!"
             )
             startingMessage.editMessage(embed.build()).complete()
@@ -129,7 +130,9 @@ class MinigameInstance(
     private fun endGame(event: GuildMessageReceivedEvent) {
         // Sort by descending value and then map each value to a line in the scoreboard, then join it
         val scoreboard = players.entries.sortedByDescending { it.value }.mapIndexed { i, entry ->
-            "${i + 1}) ${entry.key.asMention} with ${entry.value} points"
+            // If JDA can't find the user, then the game will stop. This shouldn't happen
+            val user = event.jda.getUserById(entry.key)!!
+            "${i + 1}) ${user.asMention} with ${entry.value} points"
         }.joinToString("\n")
 
         val embed = EmbedBuilder()
@@ -146,7 +149,7 @@ class MinigameInstance(
         timer = System.currentTimeMillis()
 
         if (currentAnswers.contains(event.message.contentStripped.toLowerCase())) {
-            players[event.author] = players[event.author]!! + 1
+            players[event.author.id] = players[event.author.id]!! + 1
             event.channel.sendMessage("${event.author.name} got the point!").queue()
             rounds += 1
             progress(event)
@@ -156,12 +159,12 @@ class MinigameInstance(
     fun reactionRecv(event: GuildMessageReactionAddEvent) {
         if (
             event.user.isBot ||
-            players.contains(event.user) ||
+            players.contains(event.user.id) ||
             begun ||
             event.messageId != startingMessageID
         ) return
 
-        players[event.user] = 0
+        players[event.user.id] = 0
     }
 
     fun reactionRetr(event: GuildMessageReactionRemoveEvent) {
@@ -169,12 +172,12 @@ class MinigameInstance(
             event.messageId == startingMessageID &&
             !begun
         ) {
-            players.remove(event.user)
+            players.remove(event.user!!.id)
         }
     }
 
-    private fun getPlayers() = if (players.isNotEmpty()) {
-        players.keys.joinToString(", ") { it.asMention }
+    private fun getPlayers(event: GuildMessageReceivedEvent) = if (players.isNotEmpty()) {
+        players.keys.joinToString(", ") { event.jda.getUserById(it)!!.asMention }
     } else {
         "none"
     }
