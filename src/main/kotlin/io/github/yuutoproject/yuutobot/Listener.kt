@@ -18,98 +18,21 @@
 
 package io.github.yuutoproject.yuutobot
 
-import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import net.dv8tion.jda.api.events.GenericEvent
 import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import net.dv8tion.jda.api.hooks.ListenerAdapter
-import org.reflections.Reflections
+import net.dv8tion.jda.api.hooks.EventListener
 import org.slf4j.LoggerFactory
-import java.lang.reflect.Modifier
 
-class Listener : ListenerAdapter() {
+class Listener : EventListener {
     private val logger = LoggerFactory.getLogger(this.javaClass)
+    private val commandManager = CommandManager()
 
-    private val commands = hashMapOf<String, AbstractCommand>()
-    private val aliases = hashMapOf<String, String>()
-
-    init {
-        loadCommands()
-    }
-
-    override fun onReady(event: ReadyEvent) {
-        logger.info("Logged in as {}", event.jda.selfUser.asTag)
-    }
-
-    override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
-        val author = event.author
-        val content = event.message.contentRaw
-        val prefix = Yuuto.config.get("PREFIX", "!")
-
-        if (event.isWebhookMessage || author.isBot || content.isBlank() || !content.startsWith(prefix)) {
-            return
+    override fun onEvent(event: GenericEvent) {
+        if (event is GuildMessageReceivedEvent) {
+            commandManager.handleMessage(event)
+        } else if (event is ReadyEvent) {
+            logger.info("Logged in as {}", event.jda.selfUser.asTag)
         }
-
-        val botcmdsChannel = Yuuto.config["BOTCMDS_${event.guild.idLong}"]
-
-        // If the botcms channel is set for the server and the channel is the channel stored
-        // Commands can be executed, if not this will return
-        if (botcmdsChannel != null && botcmdsChannel != event.channel.id) {
-            return
-        }
-
-        val args = content.substring(prefix.length)
-            .trim()
-            .split("\\s+".toRegex())
-            .toMutableList()
-
-        // Interesting case
-        if (args.isEmpty()) {
-            return
-        }
-
-        val invoke = args.removeAt(0).toLowerCase()
-        var command: AbstractCommand? = null
-
-        if (commands.containsKey(invoke)) {
-            command = commands[invoke]
-        } else if (aliases.containsKey(invoke)) {
-            command = commands[aliases[invoke]]
-        }
-
-        if (command == null) {
-            return
-        }
-
-        val commandName = command.name
-
-        // Run the commands asynchronously so they don't block the event thread
-        GlobalScope.launch {
-            logger.info("Running command $commandName in ${event.guild} with $args")
-
-            try {
-                command.run(args, event)
-            } catch (e: Throwable) {
-                event.channel.sendMessage("${author.asMention}, there was an error trying to execute that command!").queue()
-                logger.error("Command $commandName failed in ${event.guild} with $args", e)
-            }
-        }
-    }
-
-    private fun loadCommands() {
-        val reflections = Reflections("io.github.yuutoproject.yuutobot.commands")
-
-        reflections.getSubTypesOf(AbstractCommand::class.java)
-            .filter { !Modifier.isAbstract(it.modifiers) }
-            .forEach {
-                val command = it.getDeclaredConstructor().newInstance()
-
-                commands[command.name] = command
-
-                command.aliases.forEach { alias ->
-                    aliases[alias] = command.name
-                }
-            }
     }
 }

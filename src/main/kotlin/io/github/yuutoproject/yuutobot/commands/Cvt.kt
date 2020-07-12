@@ -28,9 +28,9 @@ import kotlin.math.pow
 
 class Cvt : AbstractCommand(
     "cvt",
-    CommandCategory.UTIL,
-    "Helps converting stuff",
-    "Run `cvt <target unit> <value><origin unit>` to convert `<value>` from `<origin unit>` to `<target unit>`."
+    CommandCategory.UTILITIES,
+    "Convert different lengths, weights, and temperatures",
+    "<target unit> <value><origin unit>"
 ) {
     override val aliases = arrayOf("convert")
 
