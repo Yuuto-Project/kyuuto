@@ -19,6 +19,7 @@
 package io.github.yuutoproject.yuutobot.commands.base
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import org.slf4j.LoggerFactory
 
 /**
  * Base class for all commands
@@ -37,6 +38,8 @@ abstract class AbstractCommand(
     val description: String,
     val usage: String
 ) {
+    protected val logger = LoggerFactory.getLogger(this.javaClass)
+
     /**
      * List of aliases for the command, is empty by default
      */

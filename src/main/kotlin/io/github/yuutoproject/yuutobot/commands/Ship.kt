@@ -20,8 +20,8 @@ package io.github.yuutoproject.yuutobot.commands
 
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
+import io.github.yuutoproject.yuutobot.extensions.applyDefaults
 import io.github.yuutoproject.yuutobot.extensions.getStaticAvatarUrl
-import io.github.yuutoproject.yuutobot.utils.Constants
 import io.github.yuutoproject.yuutobot.utils.findMember
 import io.github.yuutoproject.yuutobot.utils.httpClient
 import io.github.yuutoproject.yuutobot.utils.jackson
@@ -32,7 +32,6 @@ import net.dv8tion.jda.internal.utils.IOUtil
 import okhttp3.Call
 import okhttp3.Request
 import okhttp3.Response
-import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 import okhttp3.Callback as OkHttp3Callback
@@ -151,9 +150,8 @@ class Ship : AbstractCommand(
 
     private fun fetchUrlBytes(url: String, callback: (ByteArray) -> Unit) {
         val request = Request.Builder()
+            .applyDefaults()
             .url(url)
-            .header("User-Agent", "Yuuto Discord Bot / ${Constants.YUUTO_VERSION} https://github.com/Yuuto-Project/kyuuto")
-            .get()
             .build()
 
         httpClient.newCall(request).enqueue(object : OkHttp3Callback {
@@ -178,7 +176,6 @@ class Ship : AbstractCommand(
      * The order of the ids doesn't matter as the ap checks both ways
      */
     private fun loadRiggedShips(): Map<Long, Long> {
-        val logger = LoggerFactory.getLogger(this.javaClass)
         val shipsFile = File("rigged_ships.json5")
 
         if (!shipsFile.exists()) {

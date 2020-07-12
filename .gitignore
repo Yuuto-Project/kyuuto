@@ -10,3 +10,4 @@ build/
 *.ipr
 *.iws
 rigged_ships.json5
+owoify.bundle.js
