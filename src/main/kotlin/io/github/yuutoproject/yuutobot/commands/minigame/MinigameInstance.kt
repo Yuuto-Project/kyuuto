@@ -27,11 +27,6 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent
 import java.awt.Color
 
-enum class State {
-    STARTING,
-    IN_PROGRESS
-}
-
 class MinigameInstance(
     private val questions: MutableList<Question>,
     // The ID of the channel the game is in
@@ -41,11 +36,12 @@ class MinigameInstance(
     private val manager: Minigame,
     private val maxRounds: Int
 ) {
-    var state = State.STARTING
+    // Is the game in progress or not?
+    var begun = false
     var players = mutableMapOf<User, Int>()
     var timer = System.currentTimeMillis()
 
-    private var rounds = 0
+    private var rounds = 1
 
     private lateinit var startingMessageID: String
 
@@ -84,14 +80,14 @@ class MinigameInstance(
         if (players.isEmpty()) {
             embed.setTitle("Minigame cancelled!").setDescription("Nobody joined...")
             startingMessage.editMessage(embed.build()).complete()
-            manager.unregister(event.jda, this)
+            manager.unregister(this)
             return
         }
 
         embed.setTitle("Minigame started!").setDescription("Game has begun!")
         startingMessage.editMessage(embed.build()).complete()
 
-        state = State.IN_PROGRESS
+        begun = true
         progress(event)
     }
 
@@ -142,7 +138,7 @@ class MinigameInstance(
             .setDescription("Total points:\n$scoreboard")
         event.channel.sendMessage(embed.build()).queue()
 
-        manager.unregister(event.jda, this)
+        manager.unregister(this)
     }
 
     fun answerReceived(event: GuildMessageReceivedEvent) {
@@ -161,7 +157,7 @@ class MinigameInstance(
         if (
             event.user.isBot ||
             players.contains(event.user) ||
-            state != State.STARTING ||
+            begun ||
             event.messageId != startingMessageID
         ) return
 
@@ -171,7 +167,7 @@ class MinigameInstance(
     fun reactionRetr(event: GuildMessageReactionRemoveEvent) {
         if (
             event.messageId == startingMessageID &&
-            state == State.STARTING
+            !begun
         ) {
             players.remove(event.user)
         }
