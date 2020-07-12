@@ -36,7 +36,12 @@ import okhttp3.Response
 import java.io.IOException
 import okhttp3.Callback as OkHttp3Callback
 
-class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an image of a character in Camp Buddy saying anything you want", "[bg] <char> <text>") {
+class Dialog : AbstractCommand(
+    "dialog",
+    CommandCategory.INFO,
+    "Generates an image of a character in Camp Buddy saying anything you want",
+    "[bg] <char> <text>"
+) {
     private val backgrounds: List<String>
     private val characters: List<String>
 
@@ -56,7 +61,8 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an ima
         val now = System.currentTimeMillis()
 
         if (args.count() < 2) {
-            event.channel.sendMessage("This command requires at least two arguments : `dialog [background] <character> <text>` ([] is optional)").queue()
+            event.channel.sendMessage("This command requires at least two arguments : `dialog [background] <character> <text>` ([] is optional)")
+                .queue()
             return
         }
 
@@ -71,12 +77,14 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an ima
         }
 
         if (!backgrounds.contains(background)) {
-            event.channel.sendMessage("Sorry, but I couldn't find `$background` as a location\nAvailable backgrounds are: $backgroundsString").queue()
+            event.channel.sendMessage("Sorry, but I couldn't find `$background` as a location\nAvailable backgrounds are: $backgroundsString")
+                .queue()
             return
         }
 
         if (!characters.contains(character)) {
-            event.channel.sendMessage("Sorry, but I don't think that `$character` is a character in Camp Buddy\nAvailable characters are: $charactersString").queue()
+            event.channel.sendMessage("Sorry, but I don't think that `$character` is a character in Camp Buddy\nAvailable characters are: $charactersString")
+                .queue()
             return
         }
 
@@ -88,7 +96,8 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an ima
         val text = args.joinToString(" ").replace("/[‘’]/g".toRegex(), "'")
 
         if (text.length > 140) {
-            event.channel.sendMessage("Sorry, but the message limit is 140 characters <:hiroJey:692008426842226708>").queue()
+            event.channel.sendMessage("Sorry, but the message limit is 140 characters <:hiroJey:692008426842226708>")
+                .queue()
             return
         }
 
@@ -116,7 +125,8 @@ class Dialog : AbstractCommand("dialog", CommandCategory.INFO, "Generates an ima
 
         httpClient.newCall(request).enqueue(object : OkHttp3Callback {
             override fun onFailure(call: Call, e: IOException) {
-                event.channel.sendMessage("An error just happened in me, blame the devs <:YoichiLol:701312070880329800>").queue()
+                event.channel.sendMessage("An error just happened in me, blame the devs <:YoichiLol:701312070880329800>")
+                    .queue()
             }
 
             override fun onResponse(call: Call, response: Response) {

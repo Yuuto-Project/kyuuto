@@ -34,7 +34,8 @@ class Owoify : AbstractCommand(
     "owoify",
     CommandCategory.FUN,
     "Yuuto can owoify your text!",
-    "`owoify [level] <text>`. Level can be one of `easy`, `medium` or `hard` to indicate how cringe-worthy the outcome is."
+    "[level] <text>",
+    "[level] can be one of `easy`, `medium` or `hard` to indicate how cringe-worthy the outcome is."
 ) {
     private val levels = listOf("easy", "medium", "hard")
 
