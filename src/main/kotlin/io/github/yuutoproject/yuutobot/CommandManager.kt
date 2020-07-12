@@ -19,7 +19,7 @@
 package io.github.yuutoproject.yuutobot
 
 import io.github.yuutoproject.yuutobot.commands.Help
-import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
+import io.github.yuutoproject.yuutobot.commands.base.Command
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
@@ -30,7 +30,7 @@ import java.lang.reflect.Modifier
 class CommandManager {
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    val commands = hashMapOf<String, AbstractCommand>()
+    val commands = hashMapOf<String, Command>()
     val aliases = hashMapOf<String, String>()
     val prefix = Yuuto.config.get("PREFIX", "!")
 
@@ -38,7 +38,7 @@ class CommandManager {
         loadCommands()
     }
 
-    private fun register(instance: AbstractCommand) {
+    private fun register(instance: Command) {
         commands[instance.name] = instance
 
         instance.aliases.forEach { alias ->
@@ -51,7 +51,7 @@ class CommandManager {
 
         val reflections = Reflections("io.github.yuutoproject.yuutobot.commands")
 
-        reflections.getSubTypesOf(AbstractCommand::class.java)
+        reflections.getSubTypesOf(Command::class.java)
             .filter { !Modifier.isAbstract(it.modifiers) && it.declaredConstructors[0].parameters.isEmpty() }
             .forEach {
                 register(it.getDeclaredConstructor().newInstance())
@@ -77,7 +77,7 @@ class CommandManager {
         }
 
         val invoke = args.removeAt(0).toLowerCase()
-        var command: AbstractCommand? = null
+        var command: Command? = null
 
         if (commands.containsKey(invoke)) {
             command = commands[invoke]
@@ -104,4 +104,7 @@ class CommandManager {
             }
         }
     }
+
+    // No need to worry about indexing with null, it just returns null
+    fun getCommand(commandName: String) = commands[commandName] ?: commands[aliases[commandName]]
 }

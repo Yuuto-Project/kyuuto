@@ -18,7 +18,7 @@
 
 package io.github.yuutoproject.yuutobot.commands
 
-import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
+import io.github.yuutoproject.yuutobot.commands.base.Command
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import javax.measure.Measure
@@ -26,12 +26,11 @@ import javax.measure.unit.NonSI.*
 import javax.measure.unit.SI.*
 import kotlin.math.pow
 
-class Cvt : AbstractCommand(
+class Cvt : Command(
     "cvt",
     CommandCategory.UTILITIES,
     "Convert different lengths, weights, and temperatures",
-    "<target unit> <value><origin unit>",
-    ""
+    "<target unit> <value><origin unit>"
 ) {
     override val aliases = arrayOf("convert")
 

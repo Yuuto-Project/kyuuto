@@ -18,16 +18,14 @@
 
 package io.github.yuutoproject.yuutobot.commands
 
-import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
+import io.github.yuutoproject.yuutobot.commands.base.Command
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
-class Ping : AbstractCommand(
+class Ping : Command(
     "ping",
     CommandCategory.INFO,
-    "Get current latency and API ping",
-    "",
-    ""
+    "Get current latency and API ping"
 ) {
     private val pings = arrayOf("Ping", "Pong", "Pang", "Peng")
 

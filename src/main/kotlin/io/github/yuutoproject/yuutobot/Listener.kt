@@ -18,20 +18,21 @@
 
 package io.github.yuutoproject.yuutobot
 
+import net.dv8tion.jda.api.events.GenericEvent
 import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.dv8tion.jda.api.hooks.EventListener
 import org.slf4j.LoggerFactory
 
-class Listener : ListenerAdapter() {
+class Listener : EventListener {
     private val logger = LoggerFactory.getLogger(this.javaClass)
     private val commandManager = CommandManager()
 
-    override fun onReady(event: ReadyEvent) {
-        logger.info("Logged in as {}", event.jda.selfUser.asTag)
-    }
-
-    override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
-        commandManager.handleMessage(event)
+    override fun onEvent(event: GenericEvent) {
+        if (event is GuildMessageReceivedEvent) {
+            commandManager.handleMessage(event)
+        } else if (event is ReadyEvent) {
+            logger.info("Logged in as {}", event.jda.selfUser.asTag)
+        }
     }
 }

@@ -19,11 +19,11 @@
 package io.github.yuutoproject.yuutobot.commands
 
 import io.github.yuutoproject.yuutobot.CommandManager
-import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
+import io.github.yuutoproject.yuutobot.commands.base.Command
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
-class Help(private val commandManager: CommandManager) : AbstractCommand(
+class Help(private val commandManager: CommandManager) : Command(
     "help",
     CommandCategory.INFO,
     "Get the usage of any command",
@@ -33,9 +33,6 @@ class Help(private val commandManager: CommandManager) : AbstractCommand(
     override val aliases = arrayOf("usage", "commands")
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
-        val commands = this.commandManager.commands
-        val aliases = this.commandManager.aliases
-
         val commandName = args.getOrElse(0) { "list" }
 
         if (commandName == "list") {
@@ -43,7 +40,7 @@ class Help(private val commandManager: CommandManager) : AbstractCommand(
                 "Here is a list of all commands and their descriptions:\n"
             )
 
-            val groups = commands.values.groupBy(AbstractCommand::category)
+            val groups = commandManager.commands.values.groupBy(Command::category)
 
             for ((category, commandsInCategory) in groups) {
                 message.append("\n$category\n")
@@ -57,8 +54,7 @@ class Help(private val commandManager: CommandManager) : AbstractCommand(
             return
         }
 
-        // No need to worry about indexing with null, it just returns null
-        val command = commands[commandName] ?: commands[aliases[commandName]] ?: run {
+        val command = commandManager.getCommand(commandName) ?: run {
             event.channel.sendMessage("Sorry, that command does not exist...").queue()
             return
         }
@@ -68,7 +64,7 @@ class Help(private val commandManager: CommandManager) : AbstractCommand(
         )
 
         message.append(
-            if (command.parameters.isNotBlank()) "\n**Usage:** `${commandManager.prefix}${command.name} ${command.parameters}`"
+            if (command.parameters != null) "\n**Usage:** `${commandManager.prefix}${command.name} ${command.parameters}`"
             else "\n**Usage:** `${commandManager.prefix}${command.name}`"
         )
 
@@ -76,7 +72,7 @@ class Help(private val commandManager: CommandManager) : AbstractCommand(
             "\n**Description:** ${command.description.trim('.', '!')}. "
         )
 
-        if (command.notes.isNotBlank()) {
+        if (command.notes != null) {
             message.append("${command.notes.trim('.', '!')}.")
         }
 

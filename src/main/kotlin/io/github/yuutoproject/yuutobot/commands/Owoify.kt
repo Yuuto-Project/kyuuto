@@ -18,7 +18,7 @@
 
 package io.github.yuutoproject.yuutobot.commands
 
-import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
+import io.github.yuutoproject.yuutobot.commands.base.Command
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import io.github.yuutoproject.yuutobot.extensions.applyDefaults
 import io.github.yuutoproject.yuutobot.utils.httpClient
@@ -30,7 +30,7 @@ import okhttp3.Request
 import java.io.File
 import java.util.*
 
-class Owoify : AbstractCommand(
+class Owoify : Command(
     "owoify",
     CommandCategory.FUN,
     "Yuuto can owoify your text!",
