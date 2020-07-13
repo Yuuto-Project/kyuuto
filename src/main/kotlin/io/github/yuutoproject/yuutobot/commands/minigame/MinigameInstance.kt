@@ -85,7 +85,7 @@ class MinigameInstance(
             return
         }
 
-        embed.setTitle("Minigame started!").setDescription("Game has begun!")
+        embed.setTitle("Minigame started!").setDescription("The game has begun!")
         startingMessage.editMessage(embed.build()).complete()
 
         begun = true
