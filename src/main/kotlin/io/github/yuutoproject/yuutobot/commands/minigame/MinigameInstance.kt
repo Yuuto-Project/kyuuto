@@ -160,6 +160,7 @@ class MinigameInstance(
             players.contains(event.user.idLong) ||
             begun ||
             event.messageId != startingMessageID ||
+            !event.reactionEmote.isEmoji ||
             event.reactionEmote.emoji != "\uD83C\uDDF4"
         ) return
 
@@ -169,6 +170,7 @@ class MinigameInstance(
     fun reactionRetr(event: GuildMessageReactionRemoveEvent) {
         if (
             event.messageId == startingMessageID &&
+            event.reactionEmote.isEmoji &&
             event.reactionEmote.emoji == "\uD83C\uDDF4" &&
             !begun
         ) {
