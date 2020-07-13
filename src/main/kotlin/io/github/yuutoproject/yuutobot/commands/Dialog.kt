@@ -61,12 +61,14 @@ class Dialog : AbstractCommand(
         val now = System.currentTimeMillis()
 
         if (args.size == 1 && args[0].toLowerCase() == "list") {
-            event.channel.sendMessage("""Here are the lists of characters and backgrounds that you can use
+            event.channel.sendMessage(
+                """Here are the lists of characters and backgrounds that you can use
                 |
                 |Characters: $charactersString
                 |
                 |Backgrounds: $backgroundsString
-            """.trimMargin())
+            """.trimMargin()
+            )
                 .queue()
 
             return
