@@ -16,15 +16,14 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.github.yuutoproject.yuutobot.commands.base
+package io.github.yuutoproject.yuutobot.objects
 
-enum class CommandCategory(private val emote: String) {
-    INFO("\u2139"),
-    FUN("\uD83C\uDFB2"),
-    UTILITIES("\u2699");
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
 
-    // This is an instance prop
-    private val displayName: String = name.toLowerCase().capitalize()
-
-    override fun toString() = "$emote $displayName"
-}
+class Question @JsonCreator constructor(
+    @JsonProperty("type") val type: String,
+    @JsonProperty("question") val question: String,
+    @JsonProperty("answers") val answers: MutableList<String>,
+    @JsonProperty("wrong") val wrong: List<String>
+)

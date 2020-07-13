@@ -16,23 +16,21 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.github.yuutoproject.yuutobot.commands
+package io.github.yuutoproject.yuutobot.commands.minigame
 
-import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
-import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
+import io.github.yuutoproject.yuutobot.commands.Minigame
+import net.dv8tion.jda.api.events.GenericEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent
+import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent
+import net.dv8tion.jda.api.hooks.EventListener
 
-class Enlarge : AbstractCommand("enlarge", CommandCategory.UTILITIES, "Returns an enlarged emote", "<emote>") {
-    override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
-        val emotes = event.message.emotes
-
-        if (emotes.isEmpty()) {
-            event.channel.sendMessage("Sorry, but you need to provide me an emote to use this command~!").queue()
-            return
+class MinigameListener(private val minigame: Minigame) : EventListener {
+    override fun onEvent(event: GenericEvent) {
+        when (event) {
+            is GuildMessageReceivedEvent -> minigame.messageRecv(event)
+            is GuildMessageReactionAddEvent -> minigame.reactionRecv(event)
+            is GuildMessageReactionRemoveEvent -> minigame.reactionRetr(event)
         }
-
-        val emoteLink = emotes.first().imageUrl
-
-        event.channel.sendMessage("${event.author.asMention}, here you go~!\n$emoteLink").queue()
     }
 }

@@ -23,7 +23,7 @@ import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
-class Law : AbstractCommand("law", CommandCategory.INFO, "Shows the buddy law", "law") {
+class Law : AbstractCommand("law", CommandCategory.INFO, "Shows the buddy law") {
     override val aliases = arrayOf("buddylaw")
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
