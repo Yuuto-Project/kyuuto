@@ -63,7 +63,7 @@ class MinigameInstance(
         val startingMessage = event.channel.sendMessage(embed.build()).complete()
         startingMessageID = startingMessage.id
 
-        startingMessage.addReaction("U+1F1F4").complete()
+        startingMessage.addReaction("\uD83C\uDDF4").complete()
 
         for (countdown in 10 downTo 0 step 2) {
             embed.setDescription(
@@ -159,7 +159,8 @@ class MinigameInstance(
             event.user.isBot ||
             players.contains(event.user.idLong) ||
             begun ||
-            event.messageId != startingMessageID
+            event.messageId != startingMessageID ||
+            event.reactionEmote.emoji != "\uD83C\uDDF4"
         ) return
 
         players[event.user.idLong] = 0
@@ -168,7 +169,7 @@ class MinigameInstance(
     fun reactionRetr(event: GuildMessageReactionRemoveEvent) {
         if (
             event.messageId == startingMessageID &&
-            event.reactionEmote.asCodepoints == "U+1f1f4" &&
+            event.reactionEmote.emoji == "\uD83C\uDDF4" &&
             !begun
         ) {
             players.remove(event.user!!.idLong)
