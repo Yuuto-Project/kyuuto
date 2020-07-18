@@ -30,6 +30,14 @@ class Listener : EventListener {
 
     override fun onEvent(event: GenericEvent) {
         if (event is GuildMessageReceivedEvent) {
+            val botcmdsChannel = Yuuto.config["BOTCMDS_${event.guild.idLong}"]
+
+            // If the botcms channel is set for the server and the channel is the channel stored
+            // Commands can be executed, if not this will return
+            if (botcmdsChannel != null && botcmdsChannel != event.channel.id) {
+                return
+            }
+
             commandManager.handleMessage(event)
         } else if (event is ReadyEvent) {
             logger.info("Logged in as {}", event.jda.selfUser.asTag)
