@@ -40,7 +40,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.3.7")
     // The discord lib
-    implementation(group = "net.dv8tion", name = "JDA", version = "4.1.1_165") {
+    implementation(group = "net.dv8tion", name = "JDA", version = "4.2.0_178") {
         exclude(module = "opus-java")
     }
     // Utils (aka finder util)

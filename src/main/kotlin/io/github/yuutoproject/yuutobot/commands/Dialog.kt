@@ -60,7 +60,21 @@ class Dialog : AbstractCommand(
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
         val now = System.currentTimeMillis()
 
-        if (args.count() < 2) {
+        if (args.size == 1 && args[0].toLowerCase() == "list") {
+            event.channel.sendMessage(
+                """Here are the lists of characters and backgrounds that you can use:
+                |
+                |Characters: $charactersString
+                |
+                |Backgrounds: $backgroundsString
+            """.trimMargin()
+            )
+                .queue()
+
+            return
+        }
+
+        if (args.size < 2) {
             event.channel.sendMessage("This command requires at least two arguments : `dialog [background] <character> <text>` ([] is optional)")
                 .queue()
             return
