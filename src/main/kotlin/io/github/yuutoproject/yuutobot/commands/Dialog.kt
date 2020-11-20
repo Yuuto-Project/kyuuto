@@ -21,6 +21,7 @@ package io.github.yuutoproject.yuutobot.commands
 import com.fasterxml.jackson.core.type.TypeReference
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
+import io.github.yuutoproject.yuutobot.extensions.JSON_TYPE
 import io.github.yuutoproject.yuutobot.utils.EMOJI_REGEX
 import io.github.yuutoproject.yuutobot.utils.NONASCII_REGEX
 import io.github.yuutoproject.yuutobot.utils.httpClient
@@ -54,8 +55,6 @@ class Dialog : AbstractCommand(
 
     private val backgroundsString = "`${backgrounds.joinToString("`, `")}`"
     private val charactersString = "`${characters.joinToString("`, `")}`"
-
-    private val json = "application/json; charset=utf-8".toMediaType()
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
         val now = System.currentTimeMillis()
@@ -130,7 +129,8 @@ class Dialog : AbstractCommand(
             .put("background", background)
             .put("character", character)
             .put("text", text)
-            .toString().toRequestBody(json)
+            .toString()
+            .toRequestBody(JSON_TYPE)
 
         val request = Request.Builder()
             .url("https://kyuu.to/dialog")

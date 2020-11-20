@@ -20,6 +20,7 @@ package io.github.yuutoproject.yuutobot.commands
 
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
+import io.github.yuutoproject.yuutobot.extensions.JSON_TYPE
 import io.github.yuutoproject.yuutobot.extensions.applyDefaults
 import io.github.yuutoproject.yuutobot.extensions.getStaticAvatarUrl
 import io.github.yuutoproject.yuutobot.utils.findMember
@@ -28,9 +29,11 @@ import io.github.yuutoproject.yuutobot.utils.jackson
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.utils.data.DataObject
 import net.dv8tion.jda.internal.utils.IOUtil
 import okhttp3.Call
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.io.File
 import java.io.IOException
@@ -98,7 +101,7 @@ class Ship : AbstractCommand(
             message
         }
 
-        fetchUrlBytes(imageUrl) {
+        fetchShipImage(member1Avatar, member2Avatar) {
             val embed = EmbedBuilder()
                 .setTitle("${member1.effectiveName} and ${member2.effectiveName}")
                 .addField("Your love score is $score%", parsedMessage, false)
@@ -148,10 +151,17 @@ class Ship : AbstractCommand(
         return score to message
     }
 
-    private fun fetchUrlBytes(url: String, callback: (ByteArray) -> Unit) {
+    private fun fetchShipImage(image1: String, image2: String, callback: (ByteArray) -> Unit) {
+        val body = DataObject.empty()
+            .put("image1", image1)
+            .put("image2", image2)
+            .toString()
+            .toRequestBody(JSON_TYPE)
+
         val request = Request.Builder()
             .applyDefaults()
-            .url(url)
+            .post(body)
+            .url("https://apis.duncte123.me/images/love")
             .build()
 
         httpClient.newCall(request).enqueue(object : OkHttp3Callback {

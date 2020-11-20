@@ -19,7 +19,10 @@
 package io.github.yuutoproject.yuutobot.extensions
 
 import io.github.yuutoproject.yuutobot.utils.Constants
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
+
+val JSON_TYPE = "application/json; charset=utf-8".toMediaType()
 
 fun Request.Builder.applyDefaults(): Request.Builder {
     this.header(
