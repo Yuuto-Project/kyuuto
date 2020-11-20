@@ -22,7 +22,7 @@ plugins {
     idea
     application
     kotlin("jvm") version "1.4.10"
-    id("org.jmailen.kotlinter") version "2.4.1"
+    id("org.jmailen.kotlinter") version "3.2.0"
     id("com.github.johnrengelman.shadow") version "6.0.0"
 }
 
@@ -95,5 +95,4 @@ kotlinter {
     reporters = arrayOf("checkstyle", "plain")
     experimentalRules = true
     disabledRules = arrayOf("no-wildcard-imports", "experimental:indent")
-    fileBatchSize = 30
 }

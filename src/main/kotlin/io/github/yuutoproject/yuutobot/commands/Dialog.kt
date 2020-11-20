@@ -30,7 +30,6 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.utils.data.DataObject
 import net.dv8tion.jda.internal.utils.IOUtil
 import okhttp3.Call
-import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
@@ -137,37 +136,39 @@ class Dialog : AbstractCommand(
             .post(body)
             .build()
 
-        httpClient.newCall(request).enqueue(object : OkHttp3Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                event.channel.sendMessage("An error just happened in me, blame the devs <:YoichiLol:701312070880329800>")
-                    .queue()
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                if (response.code != 200) {
-                    val errorMessage = when (response.code) {
-                        422 -> {
-                            val errorJson = DataObject.fromJson(IOUtil.readFully(IOUtil.getBody(response)))
-                            "There was an error, sorry <:YoichiPlease:692008252690530334> - ${errorJson.getString("message")}"
-                        }
-                        429 -> "I can't handle this much load at the moment, maybe try again later? <:YoichiPlease:692008252690530334>"
-                        else -> "An error just happened in me, blame the devs <:YoichiLol:701312070880329800>"
-                    }
-
-                    event.channel.sendMessage(errorMessage).queue()
-                    return
+        httpClient.newCall(request).enqueue(
+            object : OkHttp3Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    event.channel.sendMessage("An error just happened in me, blame the devs <:YoichiLol:701312070880329800>")
+                        .queue()
                 }
 
-                val stream = IOUtil.readFully(IOUtil.getBody(response))
+                override fun onResponse(call: Call, response: Response) {
+                    if (response.code != 200) {
+                        val errorMessage = when (response.code) {
+                            422 -> {
+                                val errorJson = DataObject.fromJson(IOUtil.readFully(IOUtil.getBody(response)))
+                                "There was an error, sorry <:YoichiPlease:692008252690530334> - ${errorJson.getString("message")}"
+                            }
+                            429 -> "I can't handle this much load at the moment, maybe try again later? <:YoichiPlease:692008252690530334>"
+                            else -> "An error just happened in me, blame the devs <:YoichiLol:701312070880329800>"
+                        }
 
-                event.channel.sendFile(stream, "file.png")
-                    .append(event.author.asMention)
-                    .append(", Here you go!")
-                    .queue()
+                        event.channel.sendMessage(errorMessage).queue()
+                        return
+                    }
 
-                logger.info("Generated image for $character at $background, took ${System.currentTimeMillis() - now}ms")
+                    val stream = IOUtil.readFully(IOUtil.getBody(response))
+
+                    event.channel.sendFile(stream, "file.png")
+                        .append(event.author.asMention)
+                        .append(", Here you go!")
+                        .queue()
+
+                    logger.info("Generated image for $character at $background, took ${System.currentTimeMillis() - now}ms")
+                }
             }
-        })
+        )
     }
 
     private fun getBackgroundsAndCharacters(): Pair<List<String>, List<String>> {

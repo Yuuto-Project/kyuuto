@@ -164,19 +164,21 @@ class Ship : AbstractCommand(
             .url("https://apis.duncte123.me/images/love")
             .build()
 
-        httpClient.newCall(request).enqueue(object : OkHttp3Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace() // the ugly way
-            }
+        httpClient.newCall(request).enqueue(
+            object : OkHttp3Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    e.printStackTrace() // the ugly way
+                }
 
-            override fun onResponse(call: Call, response: Response) {
-                response.use {
-                    val bytes = IOUtil.readFully(IOUtil.getBody(it))
+                override fun onResponse(call: Call, response: Response) {
+                    response.use {
+                        val bytes = IOUtil.readFully(IOUtil.getBody(it))
 
-                    callback(bytes)
+                        callback(bytes)
+                    }
                 }
             }
-        })
+        )
     }
 
     /**
