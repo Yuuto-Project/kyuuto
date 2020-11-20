@@ -62,7 +62,7 @@ class CommandManager {
         val author = event.author
         val content = event.message.contentRaw
 
-        if (event.isWebhookMessage || author.isBot || content.isBlank() || !content.startsWith(prefix)) {
+        if (event.isWebhookMessage || author.isBot || content.isBlank() || !content.toLowerCase().startsWith(prefix)) {
             return
         }
 

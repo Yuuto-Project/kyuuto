@@ -21,7 +21,7 @@ import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
 plugins {
     idea
     application
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version "1.4.10"
     id("org.jmailen.kotlinter") version "2.4.1"
     id("com.github.johnrengelman.shadow") version "6.0.0"
 }
@@ -38,9 +38,9 @@ repositories {
 dependencies {
     // Kotlin STD and other kotlin stuff
     implementation(kotlin("stdlib-jdk8"))
-    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.3.7")
+    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.4.1")
     // The discord lib
-    implementation(group = "net.dv8tion", name = "JDA", version = "4.2.0_178") {
+    implementation(group = "net.dv8tion", name = "JDA", version = "4.2.0_218") {
         exclude(module = "opus-java")
     }
     // Utils (aka finder util)
@@ -52,7 +52,7 @@ dependencies {
     // For loading the commands (super small lib)
     implementation(group = "org.reflections", name = "reflections", version = "0.9.12")
     // Http client
-    implementation(group = "com.squareup.okhttp3", name = "okhttp", version = "4.7.2")
+    implementation(group = "com.squareup.okhttp3", name = "okhttp", version = "4.9.0")
     // Json library, ships with JDA but is not in our classpath until we list it here
     implementation(group = "com.fasterxml.jackson.core", name = "jackson-databind", version = "2.10.1")
     // For all conversions
