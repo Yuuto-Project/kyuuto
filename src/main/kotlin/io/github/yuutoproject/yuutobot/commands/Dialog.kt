@@ -83,6 +83,7 @@ class Dialog : AbstractCommand(
                         characters.addAll(bgAndChars.second)
 
                         channel.sendMessage("Reloaded!").queue()
+                        return
                     }
                 }
             }
