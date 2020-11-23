@@ -18,8 +18,18 @@
 
 package io.github.yuutoproject.yuutobot.extensions
 
+import io.github.yuutoproject.yuutobot.utils.Constants.DEV_ROLE_ID
+import io.github.yuutoproject.yuutobot.utils.Constants.KYUUTO_GUILD
 import net.dv8tion.jda.api.entities.Member
 
 fun Member.getStaticAvatarUrl(size: Int = 128): String {
     return this.user.getStaticAvatarUrl(size)
 }
+
+val Member.isDeveloper: Boolean
+    get() {
+        val guild = this.jda.getGuildById(KYUUTO_GUILD) ?: return false
+        val member = guild.getMemberById(this.idLong) ?: return false
+
+        return member.roles.contains(guild.getRoleById(DEV_ROLE_ID)!!)
+    }

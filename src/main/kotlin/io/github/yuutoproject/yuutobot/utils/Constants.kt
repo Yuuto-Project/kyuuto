@@ -24,4 +24,7 @@ object Constants {
     const val YUUTO_RELEASE = "2020-07-18" // Release date of the current version
     const val YUUTO_VERSION = "3.0" // Version of the bot (the user sees)
     const val KYUUTO_VERSION = "1.0" // Version of Kyuuto, the Kotlin version
+
+    const val KYUUTO_GUILD = 684392803131850779L
+    const val DEV_ROLE_ID = 691420289342505102L
 }
