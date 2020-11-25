@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import io.github.yuutoproject.yuutobot.commands.base.AbstractCommand
 import io.github.yuutoproject.yuutobot.commands.base.CommandCategory
 import io.github.yuutoproject.yuutobot.extensions.JSON_TYPE
+import io.github.yuutoproject.yuutobot.extensions.isDeveloper
 import io.github.yuutoproject.yuutobot.utils.EMOJI_REGEX
 import io.github.yuutoproject.yuutobot.utils.NONASCII_REGEX
 import io.github.yuutoproject.yuutobot.utils.httpClient
@@ -42,8 +43,8 @@ class Dialog : AbstractCommand(
     "Generates an image of a character in Camp Buddy saying anything you want",
     "[bg] <char> <text>"
 ) {
-    private val backgrounds: List<String>
-    private val characters: List<String>
+    private val backgrounds: MutableList<String>
+    private val characters: MutableList<String>
 
     init {
         val bgAndChars = getBackgroundsAndCharacters()
@@ -56,24 +57,40 @@ class Dialog : AbstractCommand(
     private val charactersString = "`${characters.joinToString("`, `")}`"
 
     override fun run(args: MutableList<String>, event: GuildMessageReceivedEvent) {
-        val now = System.currentTimeMillis()
+        val channel = event.channel
 
-        if (args.size == 1 && args[0].toLowerCase() == "list") {
-            event.channel.sendMessage(
-                """Here are the lists of characters and backgrounds that you can use:
-                |
-                |Characters: $charactersString
-                |
-                |Backgrounds: $backgroundsString
-            """.trimMargin()
-            )
-                .queue()
+        if (args.size == 1) {
+            when (args[0].toLowerCase()) {
+                "list" -> {
+                    channel.sendMessage(
+                        """Here are the lists of characters and backgrounds that you can use:
+                        |
+                        |Characters: $charactersString
+                        |
+                        |Backgrounds: $backgroundsString
+                    """.trimMargin()
+                    ).queue()
+                    return
+                }
+                "reload" -> {
+                    if (event.member!!.isDeveloper) {
+                        val bgAndChars = getBackgroundsAndCharacters()
 
-            return
+                        backgrounds.clear()
+                        characters.clear()
+
+                        backgrounds.addAll(bgAndChars.first)
+                        characters.addAll(bgAndChars.second)
+
+                        channel.sendMessage("Reloaded!").queue()
+                        return
+                    }
+                }
+            }
         }
 
         if (args.size < 2) {
-            event.channel.sendMessage("This command requires at least two arguments : `dialog [background] <character> <text>` ([] is optional)")
+            channel.sendMessage("This command requires at least two arguments : `dialog [background] <character> <text>` ([] is optional)")
                 .queue()
             return
         }
@@ -89,26 +106,26 @@ class Dialog : AbstractCommand(
         }
 
         if (!backgrounds.contains(background)) {
-            event.channel.sendMessage("Sorry, but I couldn't find `$background` as a location\nAvailable backgrounds are: $backgroundsString")
+            channel.sendMessage("Sorry, but I couldn't find `$background` as a location\nAvailable backgrounds are: $backgroundsString")
                 .queue()
             return
         }
 
         if (!characters.contains(character)) {
-            event.channel.sendMessage("Sorry, but I don't think that `$character` is a character in Camp Buddy\nAvailable characters are: $charactersString")
+            channel.sendMessage("Sorry, but I don't think that `$character` is a character in Camp Buddy\nAvailable characters are: $charactersString")
                 .queue()
             return
         }
 
         if (args.count() < 1) {
-            event.channel.sendMessage("Please provide a message to be written~!").queue()
+            channel.sendMessage("Please provide a message to be written~!").queue()
             return
         }
 
         val text = args.joinToString(" ").replace("/[‘’]/g".toRegex(), "'")
 
         if (text.length > 140) {
-            event.channel.sendMessage("Sorry, but the message limit is 140 characters <:hiroJey:692008426842226708>")
+            channel.sendMessage("Sorry, but the message limit is 140 characters <:hiroJey:692008426842226708>")
                 .queue()
             return
         }
@@ -118,11 +135,11 @@ class Dialog : AbstractCommand(
             EMOJI_REGEX.containsMatchIn(text) ||
             NONASCII_REGEX.containsMatchIn(text)
         ) {
-            event.channel.sendMessage("Sorry, but I can't display emotes, mentions, or non-latin characters").queue()
+            channel.sendMessage("Sorry, but I can't display emotes, mentions, or non-latin characters").queue()
             return
         }
 
-        event.channel.sendTyping().queue()
+        channel.sendTyping().queue()
 
         val body = DataObject.empty()
             .put("background", background)
@@ -136,10 +153,12 @@ class Dialog : AbstractCommand(
             .post(body)
             .build()
 
+        val now = System.currentTimeMillis()
+
         httpClient.newCall(request).enqueue(
             object : OkHttp3Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    event.channel.sendMessage("An error just happened in me, blame the devs <:YoichiLol:701312070880329800>")
+                    channel.sendMessage("An error just happened in me, blame the devs <:YoichiLol:701312070880329800>")
                         .queue()
                 }
 
@@ -154,13 +173,13 @@ class Dialog : AbstractCommand(
                             else -> "An error just happened in me, blame the devs <:YoichiLol:701312070880329800>"
                         }
 
-                        event.channel.sendMessage(errorMessage).queue()
+                        channel.sendMessage(errorMessage).queue()
                         return
                     }
 
                     val stream = IOUtil.readFully(IOUtil.getBody(response))
 
-                    event.channel.sendFile(stream, "file.png")
+                    channel.sendFile(stream, "file.png")
                         .append(event.author.asMention)
                         .append(", Here you go!")
                         .queue()
@@ -171,7 +190,7 @@ class Dialog : AbstractCommand(
         )
     }
 
-    private fun getBackgroundsAndCharacters(): Pair<List<String>, List<String>> {
+    private fun getBackgroundsAndCharacters(): Pair<MutableList<String>, MutableList<String>> {
         val request = Request.Builder()
             .url("https://kyuu.to/info")
             .get()
@@ -184,8 +203,8 @@ class Dialog : AbstractCommand(
             val json = jackson.readTree(IOUtil.readFully(IOUtil.getBody(response)))
 
             return Pair(
-                jackson.readValue(json["backgrounds"].traverse(), object : TypeReference<List<String>>() {}),
-                jackson.readValue(json["characters"].traverse(), object : TypeReference<List<String>>() {})
+                jackson.readValue(json["backgrounds"].traverse(), object : TypeReference<MutableList<String>>() {}),
+                jackson.readValue(json["characters"].traverse(), object : TypeReference<MutableList<String>>() {})
             )
         }
     }
