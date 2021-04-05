@@ -82,7 +82,7 @@ class Owoify : AbstractCommand(
                 Scanner(s).use { scanner ->
                     return buildString {
                         while (scanner.hasNextLine()) {
-                            appendln(scanner.nextLine())
+                            appendLine(scanner.nextLine())
                         }
                     }
                 }

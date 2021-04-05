@@ -32,7 +32,7 @@ class CommandManager {
 
     val commands = hashMapOf<String, AbstractCommand>()
     val aliases = hashMapOf<String, String>()
-    val prefix = Yuuto.config.get("PREFIX", "!")
+    val prefix = config.get("PREFIX", "!")
 
     init {
         loadCommands()

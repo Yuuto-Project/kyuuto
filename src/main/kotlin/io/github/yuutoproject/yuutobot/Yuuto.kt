@@ -28,37 +28,29 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy
 import net.dv8tion.jda.api.utils.cache.CacheFlag.*
 import org.slf4j.LoggerFactory
 
-class Yuuto {
-    private val logger = LoggerFactory.getLogger(this.javaClass)
-
-    init {
-        // Print something with the logger
-        // You can also use println but that does not look as nice
-        logger.info("Booting YuutoKt")
-        logger.info("Prefix is {}", config["PREFIX"])
-
-        JDABuilder.createDefault(
-            config["TOKEN"],
-            GatewayIntent.GUILD_MEMBERS,
-            GatewayIntent.GUILD_MESSAGES,
-            GatewayIntent.GUILD_MESSAGE_REACTIONS
-        )
-            .addEventListeners(Listener())
-            .disableCache(ACTIVITY, CLIENT_STATUS, EMOTE, VOICE_STATE)
-            .setChunkingFilter(ChunkingFilter.ALL)
-            .setMemberCachePolicy(MemberCachePolicy.ALL)
-            .setActivity(Activity.playing("volleyball"))
-            .setBulkDeleteSplittingEnabled(false)
-            // ETF is more optimized
-            .setGatewayEncoding(GatewayEncoding.ETF)
-            .build()
-    }
-
-    companion object {
-        val config = Dotenv.load()
-    }
-}
+val config = Dotenv.load()
 
 fun main() {
-    Yuuto()
+    val logger = LoggerFactory.getLogger("YuutoKt")
+
+    // Print something with the logger
+    // You can also use println but that does not look as nice
+    logger.info("Booting YuutoKt")
+    logger.info("Prefix is {}", config["PREFIX"])
+
+    JDABuilder.createDefault(
+        config["TOKEN"],
+        GatewayIntent.GUILD_MEMBERS,
+        GatewayIntent.GUILD_MESSAGES,
+        GatewayIntent.GUILD_MESSAGE_REACTIONS
+    )
+        .addEventListeners(Listener())
+        .disableCache(ACTIVITY, CLIENT_STATUS, EMOTE, VOICE_STATE)
+        .setChunkingFilter(ChunkingFilter.ALL)
+        .setMemberCachePolicy(MemberCachePolicy.ALL)
+        .setActivity(Activity.playing("volleyball"))
+        .setBulkDeleteSplittingEnabled(false)
+        // ETF is more optimized
+        .setGatewayEncoding(GatewayEncoding.ETF)
+        .build()
 }

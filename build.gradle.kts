@@ -21,8 +21,8 @@ import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
 plugins {
     idea
     application
-    kotlin("jvm") version "1.4.10"
-    id("org.jmailen.kotlinter") version "3.2.0"
+    kotlin("jvm") version "1.4.32"
+    id("org.jmailen.kotlinter") version "3.4.0"
     id("com.github.johnrengelman.shadow") version "6.0.0"
 }
 
@@ -30,7 +30,9 @@ project.group = "io.github.yuutoproject"
 project.version = "4.0-alpha"
 
 repositories {
-    jcenter()
+    mavenCentral()
+    maven("https://m2.dv8tion.net/releases")
+    jcenter() // JDA utils is still on here :/
 }
 
 // JDA and logback-classic are written in java
@@ -38,9 +40,9 @@ repositories {
 dependencies {
     // Kotlin STD and other kotlin stuff
     implementation(kotlin("stdlib-jdk8"))
-    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.4.1")
+    implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.4.3")
     // The discord lib
-    implementation(group = "net.dv8tion", name = "JDA", version = "4.2.0_218") {
+    implementation(group = "net.dv8tion", name = "JDA", version = "4.2.1_253") {
         exclude(module = "opus-java")
     }
     // Utils (aka finder util)

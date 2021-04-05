@@ -149,7 +149,7 @@ class Dialog : AbstractCommand(
             .toRequestBody(JSON_TYPE)
 
         val request = Request.Builder()
-            .url("https://kyuu.to/dialog")
+            .url("https://yuuto.dunctebot.com/dialog")
             .post(body)
             .build()
 
@@ -192,7 +192,7 @@ class Dialog : AbstractCommand(
 
     private fun getBackgroundsAndCharacters(): Pair<MutableList<String>, MutableList<String>> {
         val request = Request.Builder()
-            .url("https://kyuu.to/info")
+            .url("https://yuuto.dunctebot.com/info")
             .get()
             .build()
 
